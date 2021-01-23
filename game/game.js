@@ -30,30 +30,31 @@ MyGame.InitScene = () => {
 };
 MyGame.Init();
 
-MyGame.PlayerMovement = () => {
+MyGame.PlayerMovement = (dt) => {
+    let speed = 2;
     if (!MyGame.Player){
         MyGame.Player = MyGame.Scene.getObjectByName( "M_Player" ); 
     }else{
         if ( MyGame.Keyboard.pressed("left") ) {
-            MyGame.Player.position.x -= 0.01;
+            MyGame.Player.position.x -= speed * dt;
         }
         if ( MyGame.Keyboard.pressed("right") ) {
-            MyGame.Player.position.x += 0.01;
+            MyGame.Player.position.x += speed * dt;
         }	
         if ( MyGame.Keyboard.pressed("down") ) {
-            MyGame.Player.position.z += 0.01;
+            MyGame.Player.position.z += speed * dt;
         }
         if ( MyGame.Keyboard.pressed("up") ) {
-            MyGame.Player.position.z -= 0.01;
+            MyGame.Player.position.z -= speed * dt;
         }
     }
 }
 
 MyGame.Loop = () => {
     MyGame.MainLoop.apply(this);
-
+    let deltaTime = MyGame.Clock.getDelta();
     MyGame.Keyboard.update();
-    MyGame.PlayerMovement();
+    MyGame.PlayerMovement(deltaTime);
 
     requestAnimationFrame( MyGame.Loop );
 }

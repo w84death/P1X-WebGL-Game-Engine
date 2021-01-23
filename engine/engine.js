@@ -8,19 +8,17 @@
 
 import { GLTFLoader } from './libs/GLTFLoader.js';
 import { OrbitControls } from './libs/OrbitControls.js';
-import { AmmoPhysics } from './libs/AmmoPhysics.js';
 
 const Engine = function(Settings) {
     console.log("ENGINE: Engine starting..");
-
-    // I love javascript...
     let engine = this;
 
+    this.Clock = new THREE.Clock();
     this.Scene = new THREE.Scene();
     this.Renderer = new THREE.WebGLRenderer();
     this.Loader = new GLTFLoader();
     this.Keyboard = new KeyboardState();
-    this.Physics = {};
+
     this.Init = () => {
         console.log("ENGINE: Initialization started...");
         this.InitRenderer();
@@ -30,6 +28,15 @@ const Engine = function(Settings) {
         this.InitMainCamera();
         this.InitControls();
         this.InitScene();
+        this.InitMoog();
+
+        this.Moog({
+            freq: 5000,
+            attack: 80,
+            decay: 400,
+            oscilator: 3,
+            vol: 0.2
+        });
         console.log("ENGINE: Initialization ended.");
     };
 
@@ -58,20 +65,63 @@ const Engine = function(Settings) {
     };
 
     this.InitLights = () => {
-        const light = new THREE.DirectionalLight( 
-            Settings.environment.sun.color, 
-            Settings.environment.sun.power );
-        light.position.set(-150, 40, 0 );
-        light.position.multiplyScalar( 1.3 );
+        const hemiLight = new THREE.HemisphereLight( 0xffffff, 0xffffff, 0.1 );
+        hemiLight.color.setHSL( 0.6, 0.6, 0.6 );
+        hemiLight.groundColor.setHSL( 0.1, 1, 0.4 );
+        hemiLight.position.set( 0, 50, 0 );
+        this.Scene.add( hemiLight );
+        
+        const light = new THREE.DirectionalLight( 0xffffff , 1);
+        light.color.setHSL( 0.1, 1, 0.95 );
+        light.position.set( -1, 1.75, 1 );
+        light.position.multiplyScalar( 100 );
+        this.Scene.add( light );
+
         light.castShadow = true;
         light.shadow.mapSize.width = 2048;
         light.shadow.mapSize.height = 2048;
 
+        let d = 50;
+        light.shadow.camera.left = -d;
+        light.shadow.camera.right = d;
+        light.shadow.camera.top = d;
+        light.shadow.camera.bottom = -d;
+
+        light.shadow.camera.far = 13500;
         this.Scene.add( light );
         console.log("ENGINE: Lights initialized.");
     };
     
     this.InitSkybox = () => {
+        let skyboxImage = Settings.environment.sky.skybox;
+
+        function createPathStrings(filename) {
+            const basePath = "./textures/skybox/";
+            const baseFilename = basePath + filename;
+            const fileType = ".png";
+            const sides = ["ft", "bk", "up", "dn", "rt", "lf"];
+            const pathStings = sides.map(side => {
+                return baseFilename + "_" + side + fileType;
+            });
+
+            return pathStings;
+        }
+
+        function createMaterialArray(filename) {
+            const skyboxImagepaths = createPathStrings(filename);
+            const materialArray = skyboxImagepaths.map(image => {
+            let texture = new THREE.TextureLoader().load(image);
+        
+            return new THREE.MeshBasicMaterial({ map: texture, side: THREE.BackSide });
+            });
+            return materialArray;
+        }
+
+        
+        const materialArray = createMaterialArray(skyboxImage);
+        const skyboxGeo = new THREE.BoxGeometry(10000, 10000, 10000);
+        const skybox = new THREE.Mesh(skyboxGeo, materialArray);
+        this.Scene.add(skybox);
         console.log("ENGINE: Skybox initialized (dummy).");
     };
 
@@ -106,6 +156,41 @@ const Engine = function(Settings) {
     this.InitPhysicsScene = () => {};
     this.InitScene = () => {};
 
+    this.InitMoog = () => {
+        this.Audio = new (window.AudioContext || window.webkitAudioContext)();
+        this.Moog = (params) => {
+            var vol = params.vol || 0.2,
+                attack = params.attack || 20,
+                decay = params.decay || 300,
+                freq = params.freq || 30,
+                oscilator = params.oscilator || 0,
+                gain = this.Audio.createGain(),
+                osc = this.Audio.createOscillator();
+
+            // GAIN
+            gain.connect(this.Audio.destination);
+            gain.gain.setValueAtTime(0, this.Audio.currentTime);
+            gain.gain.linearRampToValueAtTime(params.vol, this.Audio.currentTime + attack / 1000);
+            gain.gain.linearRampToValueAtTime(0, this.Audio.currentTime + decay / 1000);
+
+            // OSC
+            osc.frequency.value = freq;
+            osc.type = oscilator; //"square";
+            osc.connect(gain);
+
+            // START
+            osc.start(0);
+
+            setTimeout(function() {
+                osc.stop(0);
+                osc.disconnect(gain);
+                gain.disconnect(engine.Audio.destination);
+            }, decay)
+        };
+        console.log("ENGINE: Moog autio initialized.");
+    };
+
+
     this.ImportModel = (options) => {
         this.Loader.load( options.path, function ( gltf ) {
             gltf.scene.position.x = options.position.x;
@@ -113,7 +198,7 @@ const Engine = function(Settings) {
             gltf.scene.position.z = options.position.z;
             
             engine.Scene.add(gltf.scene);
-            console.log("ENGINE: Model ["+ options.name +"] imported.");
+            console.log(`ENGINE: Model [${gltf.scene.children[0].name}] imported.`);
 
         }, undefined, function ( error ) {
             console.error( error );
@@ -121,6 +206,7 @@ const Engine = function(Settings) {
     };
     
     this.MainLoop = () => {
+        
         this.Renderer.render(this.Scene, this.Camera);
         this.Keyboard.update();
     };
