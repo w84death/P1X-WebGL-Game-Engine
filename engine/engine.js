@@ -26,7 +26,7 @@ const Engine = function(Settings) {
         this.InitLights();
         this.InitSkybox();
         this.InitMainCamera();
-        this.InitControls();
+        //this.InitControls();
         this.InitScene();
         this.InitMoog();
 
@@ -146,12 +146,6 @@ const Engine = function(Settings) {
         this.Controls.maxDistance = Settings.camera.distance.max;
         console.log("ENGINE: Controls initialized (dummy).");
     };
-    
-    async function InitPhysics() {
-        engine.Physics = await AmmoPhysics();
-        engine.InitPhysicsScene();
-        console.log("ENGINE: Physics initialized.");
-    };
 
     this.InitPhysicsScene = () => {};
     this.InitScene = () => {};
@@ -187,16 +181,69 @@ const Engine = function(Settings) {
                 gain.disconnect(engine.Audio.destination);
             }, decay)
         };
-        console.log("ENGINE: Moog autio initialized.");
+        console.log("AUDIO: Moog autio initialized.");
     };
 
+    this.NetworkConnect = () => {
+        this.WebSocket = new WebSocket(Settings.network.server);
+
+        this.WebSocket.onopen = (packet) => { engine.NetworkOnOpen(packet) };
+        this.WebSocket.onclose = (packet) => { engine.NetworkOnClose(packet) };
+        this.WebSocket.onmessage = (packet) => { engine.NetworkOnMessage(packet) };
+        this.WebSocket.onerror = (packet) =>  { engine.NetworkOnError(packet) };
+        
+        this.Moog({
+            freq: 2000,
+            attack: 80,
+            decay: 400,
+            oscilator: 3,
+            vol: 0.2
+        });
+        console.log("NETWORK: Network initialized.");
+    };
+
+    this.NetworkOnOpen = (packet) => {
+        console.log("NETWORK: Connected.");
+    };
+
+    this.NetworkOnClose = (packet) => {
+        console.log("NETWORK: Disconneced.");
+    };
+
+    this.NetworkOnMessage = (packet) => {
+        console.log("NETWORK: New packet: " + packet.data);
+        this.Moog({
+            freq: 8000,
+            attack: 80,
+            decay: 400,
+            oscilator: 3,
+            vol: 0.2
+        });
+    };
+
+    this.NetworkOnError = (packet) => {
+        console.log("NETWORK: ERROR: " + packet.data);
+        websocket.close();
+        this.Moog({
+            freq: 500,
+            attack: 80,
+            decay: 100,
+            oscilator: 3,
+            vol: 0.2
+        });
+    };
+
+    this.NetworkOSendPacket = (packet) => {
+        websocket.send(packet);
+        console.log("NETWORK: Packet send " + packet);
+    };
 
     this.ImportModel = (options) => {
         this.Loader.load( options.path, function ( gltf ) {
             gltf.scene.position.x = options.position.x;
             gltf.scene.position.y = options.position.y;
             gltf.scene.position.z = options.position.z;
-            
+            gltf.scene.network_id = options.network_id;
             engine.Scene.add(gltf.scene);
             console.log(`ENGINE: Model [${gltf.scene.children[0].name}] imported.`);
 
