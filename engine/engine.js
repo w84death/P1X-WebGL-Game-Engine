@@ -82,9 +82,9 @@ var Engine = function(Settings) {
 
     this.InitControls = () => {
         this.Controls = new OrbitControls( this.Camera, this.Renderer.domElement );
-        this.Controls.maxPolarAngle = Math.PI * 0.44;
-        this.Controls.minDistance = 1;
-        this.Controls.maxDistance = 12;
+        this.Controls.maxPolarAngle = Settings.camera.angle.polar;
+        this.Controls.minDistance = Settings.camera.distance.min;
+        this.Controls.maxDistance = Settings.camera.distance.max;
         console.log("ENGINE: Controls initialized (dummy).");
     };
 
