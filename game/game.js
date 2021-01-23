@@ -22,7 +22,7 @@ MyGame.InitScene = () => {
 
     MyGame.ImportModel({
         path: './game/models/lunar_lander.glb',
-        position: {x:0, y:1, z:4}
+        position: {x:0, y:.5, z:4}
     });
     
     MyGame.ImportModel({
@@ -90,7 +90,6 @@ MyGame.NetworkOnMessage = (packet) => {
 MyGame.InitPlayer = ()=> {
     MyGame.Player = MyGame.Scene.getObjectByName( "SM_Player" );
     if(!MyGame.Player) return;
-
     
     MyGame.Player.RotateVector = new THREE.Vector3( 0, 0, 0 );
     MyGame.Player.MoveVector = new THREE.Vector3( 0, 0, 0 );
@@ -104,7 +103,7 @@ MyGame.Loop = () => {
     MyGame.Keyboard.update();
     MyGame.PlayerMovement(deltaTime);
     if(!MyGame.Player) MyGame.InitPlayer();
-    else MyGame.Camera.lookAt(MyGame.Player.position);
+    // else MyGame.Camera.lookAt(MyGame.Player.position);
     requestAnimationFrame( MyGame.Loop );
 }
 MyGame.Loop();

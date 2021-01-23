@@ -4,7 +4,7 @@ const Settings = {
         width: 800, 
         height: 600, 
         domId: 'game',
-        version: 'pre-alpha0' },
+        version: 'alpha0' },
     camera: {
         position: { x:0, y:6, z:3 },
         plane: { near: 0.1, far: 30000 },

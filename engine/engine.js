@@ -26,7 +26,7 @@ const Engine = function(Settings) {
         this.InitLights();
         this.InitSkybox();
         this.InitMainCamera();
-        //this.InitControls();
+        this.InitControls();
         this.InitScene();
         this.InitMoog();
 
