@@ -1,5 +1,5 @@
 body {font-family:'Courier New', sans-serif; font-size:16px; color: #f8f8f8;
     background-color:#222; background-size:cover; background-position:center bottom;}
 main {width:800px; margin:0px auto;}
-.svga {width:800px; height:634px; padding:0 16px `6px 16px;}
-.svga h1 {margin:0; padding:0;}
+.svga {width:800px; height:634px; padding:0 16px 16px 16px;}
+legend h1 {margin:0; padding:0; display: inline-block;}

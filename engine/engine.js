@@ -33,7 +33,7 @@ var Engine = function(Settings) {
         this.Renderer.shadowMap.enabled = true;
         this.Renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 
-        document.getElementById(Settings.game.id).appendChild(this.Renderer.domElement);
+        document.getElementById(Settings.game.domId).appendChild(this.Renderer.domElement);
         console.log("ENGINE: Renderer initialized.");
     },
 
@@ -77,10 +77,7 @@ var Engine = function(Settings) {
         this.Camera.position.x = Settings.camera.position.x;
         this.Camera.position.y = Settings.camera.position.y;
         this.Camera.position.z = Settings.camera.position.z;
-        console.log(`ENGINE: Main camera initialized at [
-            ${this.Camera.position.x},
-            ${this.Camera.position.y},
-            ${this.Camera.position.z}].`);
+        console.log(`ENGINE: Main camera initialized at [${this.Camera.position.x},${this.Camera.position.y},${this.Camera.position.z}].`);
     };
 
     this.InitControls = () => {

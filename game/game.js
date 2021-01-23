@@ -23,3 +23,6 @@ MyGame.ImportModel({
     position: {x:0, y:1, z:0}
 });
 MyGame.MainLoop();
+
+document.getElementById("gameTitle").innerHTML = Settings.game.title;
+document.getElementById("gameVersion").innerHTML = Settings.game.version;

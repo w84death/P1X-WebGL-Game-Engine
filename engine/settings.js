@@ -1,5 +1,10 @@
 const Settings = {
-    game: { width: 800, height: 600, id: 'game' },
+    game: { 
+        title: 'Sample Moon Game',
+        width: 800, 
+        height: 600, 
+        domId: 'game',
+        version: 'pre-alpha0' },
     camera: {
         position: {x:0, y:5, z:3},
         plane: { near: 0.1, far: 30000 },
