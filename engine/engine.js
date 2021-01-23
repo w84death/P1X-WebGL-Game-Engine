@@ -8,12 +8,19 @@
 
 import { GLTFLoader } from './libs/GLTFLoader.js';
 import { OrbitControls } from './libs/OrbitControls.js';
+import { AmmoPhysics } from './libs/AmmoPhysics.js';
 
-var Engine = function(Settings) {
+const Engine = function(Settings) {
     console.log("ENGINE: Engine starting..");
+
+    // I love javascript...
+    let engine = this;
+
     this.Scene = new THREE.Scene();
     this.Renderer = new THREE.WebGLRenderer();
     this.Loader = new GLTFLoader();
+    this.Keyboard = new KeyboardState();
+    this.Physics = {};
     this.Init = () => {
         console.log("ENGINE: Initialization started...");
         this.InitRenderer();
@@ -22,6 +29,7 @@ var Engine = function(Settings) {
         this.InitSkybox();
         this.InitMainCamera();
         this.InitControls();
+        this.InitScene();
         console.log("ENGINE: Initialization ended.");
     };
 
@@ -77,6 +85,7 @@ var Engine = function(Settings) {
         this.Camera.position.x = Settings.camera.position.x;
         this.Camera.position.y = Settings.camera.position.y;
         this.Camera.position.z = Settings.camera.position.z;
+        this.Camera.lookAt( 0, 0.5, 0 );
         console.log(`ENGINE: Main camera initialized at [${this.Camera.position.x},${this.Camera.position.y},${this.Camera.position.z}].`);
     };
 
@@ -87,11 +96,18 @@ var Engine = function(Settings) {
         this.Controls.maxDistance = Settings.camera.distance.max;
         console.log("ENGINE: Controls initialized (dummy).");
     };
+    
+    async function InitPhysics() {
+        engine.Physics = await AmmoPhysics();
+        engine.InitPhysicsScene();
+        console.log("ENGINE: Physics initialized.");
+    };
+
+    this.InitPhysicsScene = () => {};
+    this.InitScene = () => {};
 
     this.ImportModel = (options) => {
-        let engine = this;
         this.Loader.load( options.path, function ( gltf ) {
-            gltf.scene.name = options.name;
             gltf.scene.position.x = options.position.x;
             gltf.scene.position.y = options.position.y;
             gltf.scene.position.z = options.position.z;
@@ -105,8 +121,8 @@ var Engine = function(Settings) {
     };
     
     this.MainLoop = () => {
-        requestAnimationFrame( this.MainLoop );
         this.Renderer.render(this.Scene, this.Camera);
+        this.Keyboard.update();
     };
 }
 
