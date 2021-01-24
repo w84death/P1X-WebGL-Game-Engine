@@ -1,3 +1,11 @@
+/**
+ * P1X WEBGL GAME ENGINE
+ * DEFAULT SETTINGS
+ * 
+ * CREATED: 23-01-2021
+ * (c)2021 Cyfrowy Nomada
+ */
+
 const Settings = {
     game: { 
         title: 'Sample Moon Game',
@@ -20,7 +28,8 @@ const Settings = {
         sky: { skybox:  'purplenebula' }
     },
     network: {
-        server: 'ws://194.126.207.20:8080'
+        //server: 'ws://194.126.207.20:8080'
+        server: 'ws://0.0.0.0:8080'
     },
     physics: {
         gravity: { x:1, y:2, z:1}
