@@ -15,7 +15,7 @@ const Engine = function(Settings) {
 
     this.Clock = new THREE.Clock();
     this.Scene = new THREE.Scene();
-    this.Renderer = new THREE.WebGLRenderer();
+    this.Renderer = new THREE.WebGLRenderer( {antialias: true});
     this.Loader = new GLTFLoader();
     this.Keyboard = new KeyboardState();
 
@@ -25,9 +25,8 @@ const Engine = function(Settings) {
         this.InitEnvironment();
         this.InitLights();
         this.InitSkybox();
-        this.InitMainCamera();
-        this.InitControls();
-        this.InitScene();
+        // this.InitAutomaticControls();
+        this.LoadMainScene();
         this.InitMoog();
 
         this.Moog({
@@ -41,13 +40,28 @@ const Engine = function(Settings) {
     };
 
     this.InitRenderer = () => {
+
+        // Set CustomToneMapping to Uncharted2
+        // source: http://filmicworlds.com/blog/filmic-tonemapping-operators/
+
+        THREE.ShaderChunk.tonemapping_pars_fragment = THREE.ShaderChunk.tonemapping_pars_fragment.replace(
+            'vec3 CustomToneMapping( vec3 color ) { return color; }',
+            `#define Uncharted2Helper( x ) max( ( ( x * ( 0.15 * x + 0.10 * 0.50 ) + 0.20 * 0.02 ) / ( x * ( 0.15 * x + 0.50 ) + 0.20 * 0.30 ) ) - 0.02 / 0.30, vec3( 0.0 ) )
+            float toneMappingWhitePoint = 1.0;
+            vec3 CustomToneMapping( vec3 color ) {
+                color *= toneMappingExposure;
+                return saturate( Uncharted2Helper( color ) / Uncharted2Helper( vec3( toneMappingWhitePoint ) ) );
+            }`
+        );
         this.Renderer.setSize( Settings.game.width, Settings.game.height);
         this.Renderer.setPixelRatio( window.devicePixelRatio );
         this.Renderer.setClearColor( Settings.environment.background );
         this.Renderer.toneMapping = THREE.LinearToneMapping;
         this.Renderer.shadowMap.enabled = true;
         this.Renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-
+        this.Renderer.toneMapping = THREE.ACESFilmicToneMapping;
+        this.Renderer.outputEncoding = THREE.sRGBEncoding;
+        this.Renderer.toneMappingExposure = Settings.environment.postprocess.exposure;
         document.getElementById(Settings.game.domId).appendChild(this.Renderer.domElement);
         console.log("ENGINE: Renderer initialized.");
     },
@@ -125,21 +139,21 @@ const Engine = function(Settings) {
         console.log("ENGINE: Skybox initialized (dummy).");
     };
 
-    this.InitMainCamera = () => {
+    this.InitMainCamera = (copyCamera) => {
         this.Camera = new THREE.PerspectiveCamera( 
             Settings.camera.fov, 
             Settings.game.width / Settings.game.height, 
             Settings.camera.plane.near, 
             Settings.camera.plane.far );
     
-        this.Camera.position.x = Settings.camera.position.x;
-        this.Camera.position.y = Settings.camera.position.y;
-        this.Camera.position.z = Settings.camera.position.z;
-        this.Camera.lookAt( 0, 0.5, 0 );
+        this.Camera.position.x = copyCamera.position.x;
+        this.Camera.position.y = copyCamera.position.y;
+        this.Camera.position.z = copyCamera.position.z;
+        this.Camera.lookAt( 0, 0, 0 );
         console.log(`ENGINE: Main camera initialized at [${this.Camera.position.x},${this.Camera.position.y},${this.Camera.position.z}].`);
     };
 
-    this.InitControls = () => {
+    this.InitAutomaticControls = () => {
         this.Controls = new OrbitControls( this.Camera, this.Renderer.domElement );
         this.Controls.maxPolarAngle = Settings.camera.angle.polar;
         this.Controls.minDistance = Settings.camera.distance.min;
@@ -147,7 +161,15 @@ const Engine = function(Settings) {
         console.log("ENGINE: Controls initialized (dummy).");
     };
 
-    this.InitPhysicsScene = () => {};
+    this.LoadMainScene = () => {
+        console.log(`ENGINE:  Importing main scene [${Settings.game.scene}]...`);
+        this.ImportModel({
+            path: `./../game/scenes/${Settings.game.scene}.glb`,
+            position: {x:0, y:0, z:0}
+        }, this.InitScene);
+        
+    }
+
     this.InitScene = () => {};
 
     this.InitMoog = () => {
@@ -184,61 +206,7 @@ const Engine = function(Settings) {
         console.log("AUDIO: Moog autio initialized.");
     };
 
-    this.NetworkConnect = () => {
-        this.WebSocket = new WebSocket(Settings.network.server);
-
-        this.WebSocket.onopen = (packet) => { engine.NetworkOnOpen(packet) };
-        this.WebSocket.onclose = (packet) => { engine.NetworkOnClose(packet) };
-        this.WebSocket.onmessage = (packet) => { engine.NetworkOnMessage(packet) };
-        this.WebSocket.onerror = (packet) =>  { engine.NetworkOnError(packet) };
-        
-        this.Moog({
-            freq: 2000,
-            attack: 80,
-            decay: 400,
-            oscilator: 3,
-            vol: 0.2
-        });
-        console.log("NETWORK: Network initialized.");
-    };
-
-    this.NetworkOnOpen = (packet) => {
-        console.log("NETWORK: Connected.");
-    };
-
-    this.NetworkOnClose = (packet) => {
-        console.log("NETWORK: Disconneced.");
-    };
-
-    this.NetworkOnMessage = (packet) => {
-        console.log("NETWORK: New packet: " + packet.data);
-        this.Moog({
-            freq: 8000,
-            attack: 80,
-            decay: 400,
-            oscilator: 3,
-            vol: 0.2
-        });
-    };
-
-    this.NetworkOnError = (packet) => {
-        console.log("NETWORK: ERROR: " + packet.data);
-        websocket.close();
-        this.Moog({
-            freq: 500,
-            attack: 80,
-            decay: 100,
-            oscilator: 3,
-            vol: 0.2
-        });
-    };
-
-    this.NetworkOSendPacket = (packet) => {
-        websocket.send(packet);
-        console.log("NETWORK: Packet send " + packet);
-    };
-
-    this.ImportModel = (options) => {
+    this.ImportModel = (options, callback=null) => {
         this.Loader.load( options.path, function ( gltf ) {
             gltf.scene.position.x = options.position.x;
             gltf.scene.position.y = options.position.y;
@@ -246,7 +214,7 @@ const Engine = function(Settings) {
             gltf.scene.network_id = options.network_id;
             engine.Scene.add(gltf.scene);
             console.log(`ENGINE: Model [${gltf.scene.children[0].name}] imported.`);
-
+            if(callback) callback();
         }, undefined, function ( error ) {
             console.error( error );
         });

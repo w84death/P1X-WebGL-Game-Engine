@@ -12,9 +12,14 @@ const Settings = {
         width: 800, 
         height: 600, 
         domId: 'game',
-        version: 'alpha0' },
+        version: 'alpha1',
+        scene: 'moon_scene'
+    },
     camera: {
-        position: { x:0, y:6, z:3 },
+        follow: {
+            smooth: 0.01, 
+            box: { x:6, y:4 },
+        },
         plane: { near: 0.1, far: 30000 },
         fov: 50,
         distance: {min:4, max:12 },
@@ -24,8 +29,11 @@ const Settings = {
         background: 0x222222,
         fog: { enabled: false, color: 0x222222, near: 20, far: 1000 },
         sun: { color: 0xffffee, power: 1.4 },
-        ambinet: 0x444444,
-        sky: { skybox:  'purplenebula' }
+        ambinet: 0x111111,
+        sky: { skybox:  'purplenebula' },
+        postprocess: {
+            exposure: 0.8
+        }
     },
     network: {
         //server: 'ws://194.126.207.20:8080'
