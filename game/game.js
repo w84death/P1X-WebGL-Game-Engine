@@ -3,7 +3,6 @@
  * GAME TEMPLATE
  * 
  * CREATED: 23-01-2021
- * (c)2021 Cyfrowy Nomada
  */
 
 import { Engine } from './../engine/engine.js';
@@ -18,7 +17,17 @@ MyGame.InitLights = () => {};
 MyGame.InitScene = () => {
     MyGame.InitPlayer();
     MyGame.InitMainCamera(MyGame.Scene.getObjectByName( "Camera" ));
+    MyGame.InitPostProcess();
     MyGame.Loop();
+
+    MyGame.Moog({
+        freq: 5000,
+        attack: 80,
+        decay: 400,
+        oscilator: 3,
+        vol: 0.2
+    });
+    console.log('GAME: Game started.');
 };
 
 MyGame.PlayerMovement = (dt) => {
@@ -73,11 +82,12 @@ MyGame.CameraFollow = (player) => {
  }
 
 MyGame.Loop = () => {
-    MyGame.MainLoop.apply(this);
+    
     let deltaTime = MyGame.Clock.getDelta();
-    MyGame.Keyboard.update();
+    MyGame.MainLoop.apply(this, [deltaTime]);
     MyGame.PlayerMovement(deltaTime);
     MyGame.CameraFollow(MyGame.Player.position);
+  
     document.getElementById('fps').innerHTML = `Delta time: ${Math.round(deltaTime*10000)/10000}ms`;
     requestAnimationFrame( MyGame.Loop );
 }

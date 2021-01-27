@@ -3,11 +3,14 @@
  * MAIN FILE
  * 
  * CREATED: 23-01-2021
- * (c)2021 Cyfrowy Nomada
  */
 
 import { GLTFLoader } from './libs/GLTFLoader.js';
 import { OrbitControls } from './libs/OrbitControls.js';
+import { EffectComposer } from './libs/EffectComposer.js';
+import { RenderPass } from './libs/RenderPass.js';
+import { BloomPass } from './libs/BloomPass.js';
+import { FilmPass } from './libs/FilmPass.js';
 
 const Engine = function(Settings) {
     console.log("ENGINE: Engine starting..");
@@ -16,6 +19,7 @@ const Engine = function(Settings) {
     this.Clock = new THREE.Clock();
     this.Scene = new THREE.Scene();
     this.Renderer = new THREE.WebGLRenderer( {antialias: true});
+    this.Composer = new EffectComposer(this.Renderer);
     this.Loader = new GLTFLoader();
     this.Keyboard = new KeyboardState();
 
@@ -25,17 +29,9 @@ const Engine = function(Settings) {
         this.InitEnvironment();
         this.InitLights();
         this.InitSkybox();
-        // this.InitAutomaticControls();
         this.LoadMainScene();
         this.InitMoog();
-
-        this.Moog({
-            freq: 5000,
-            attack: 80,
-            decay: 400,
-            oscilator: 3,
-            vol: 0.2
-        });
+        
         console.log("ENGINE: Initialization ended.");
     };
 
@@ -53,7 +49,7 @@ const Engine = function(Settings) {
                 return saturate( Uncharted2Helper( color ) / Uncharted2Helper( vec3( toneMappingWhitePoint ) ) );
             }`
         );
-        this.Renderer.setSize( Settings.game.width, Settings.game.height);
+        this.Renderer.setSize( Settings.renderer.width, Settings.renderer.height);
         this.Renderer.setPixelRatio( window.devicePixelRatio );
         this.Renderer.setClearColor( Settings.environment.background );
         this.Renderer.toneMapping = THREE.LinearToneMapping;
@@ -65,6 +61,33 @@ const Engine = function(Settings) {
         document.getElementById(Settings.game.domId).appendChild(this.Renderer.domElement);
         console.log("ENGINE: Renderer initialized.");
     },
+
+    this.InitPostProcess = () => {
+        this.Composer.setSize(Settings.renderer.width, Settings.renderer.height);
+        this.Composer.addPass(new RenderPass(this.Scene, this.Camera));
+        if(Settings.renderer.postprocess.bloom.enabled){
+            const bloomPass = new BloomPass(
+                Settings.renderer.postprocess.bloom.strength,
+                Settings.renderer.postprocess.bloom.kernel,
+                Settings.renderer.postprocess.bloom.sigma,
+                Settings.renderer.postprocess.bloom.resolution
+            );
+            this.Composer.addPass(bloomPass);
+        }
+        if(Settings.renderer.postprocess.film.enabled){
+            const filmPass = new FilmPass(
+                Settings.renderer.postprocess.film.noise,
+                Settings.renderer.postprocess.film.scanline.intensity,
+                Settings.renderer.postprocess.film.scanline.lines,
+                Settings.renderer.postprocess.film.grayscale
+            );
+            filmPass.renderToScreen = true;
+            this.Composer.addPass(filmPass);
+        }
+
+        console.log("ENGINE: Post-process initialized.");
+
+    };
 
     this.InitEnvironment = () => {
         this.Scene.background = new THREE.Color(Settings.environment.background);
@@ -165,9 +188,9 @@ const Engine = function(Settings) {
         console.log(`ENGINE:  Importing main scene [${Settings.game.scene}]...`);
         this.ImportModel({
             path: `./game/scenes/${Settings.game.scene}.glb`,
-            position: {x:0, y:0, z:0}
+            position: {x:0, y:0, z:0},
+            mainScene: Settings.game.scene
         }, this.InitScene);
-        
     }
 
     this.InitScene = () => {};
@@ -213,16 +236,17 @@ const Engine = function(Settings) {
             gltf.scene.position.z = options.position.z;
             gltf.scene.network_id = options.network_id;
             engine.Scene.add(gltf.scene);
-            console.log(`ENGINE: Model [${gltf.scene.children[0].name}] imported.`);
+            if(options.mainScene) console.log(`ENGINE: Scene [${options.mainScene}] imported.`);
+            else console.log(`ENGINE: Model [${gltf.scene.children[0].name}] imported.`);
             if(callback) callback();
         }, undefined, function ( error ) {
             console.error( error );
         });
     };
     
-    this.MainLoop = () => {
-        
-        this.Renderer.render(this.Scene, this.Camera);
+    this.MainLoop = (deltaTime) => {
+        //this.Renderer.render(this.Scene, this.Camera);
+        this.Composer.render(deltaTime);
         this.Keyboard.update();
     };
 }

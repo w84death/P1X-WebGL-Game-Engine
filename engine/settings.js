@@ -3,17 +3,36 @@
  * DEFAULT SETTINGS
  * 
  * CREATED: 23-01-2021
- * (c)2021 Cyfrowy Nomada
  */
 
 const Settings = {
     game: { 
         title: 'Sample Moon Game',
-        width: 800, 
-        height: 600, 
         domId: 'game',
         version: 'alpha1',
         scene: 'moon_scene'
+    },
+    renderer: {
+        width: 800, 
+        height: 600, 
+        postprocess: {
+            bloom: {
+                enabled: false,
+                strength: 1,
+                kernel: 25,
+                sigma: 4,
+                resolution: 256
+            },
+            film: {
+                enabled: false,
+                noise: 0.35,
+                scanline: {
+                    intensity: 0.025,
+                    lines: 648
+                },
+                grayscale: false
+            }
+        }
     },
     camera: {
         follow: {
@@ -34,10 +53,6 @@ const Settings = {
         postprocess: {
             exposure: 0.8
         }
-    },
-    network: {
-        //server: 'ws://194.126.207.20:8080'
-        server: 'ws://0.0.0.0:8080'
     },
     physics: {
         gravity: { x:1, y:2, z:1}
