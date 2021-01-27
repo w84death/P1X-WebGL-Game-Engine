@@ -164,7 +164,7 @@ const Engine = function(Settings) {
     this.LoadMainScene = () => {
         console.log(`ENGINE:  Importing main scene [${Settings.game.scene}]...`);
         this.ImportModel({
-            path: `./../game/scenes/${Settings.game.scene}.glb`,
+            path: `./game/scenes/${Settings.game.scene}.glb`,
             position: {x:0, y:0, z:0}
         }, this.InitScene);
         
