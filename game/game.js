@@ -6,6 +6,7 @@
  * (c)2021 Cyfrowy Nomada
  */
 
+import { Vector2, Vector3 } from '../engine/libs/three.module.js';
 import { Engine } from './../engine/engine.js';
 import { Settings } from './../engine/settings.js';
 
@@ -45,18 +46,33 @@ MyGame.PlayerMovement = (dt) => {
         MyGame.Player.MoveVector.y = 2.0;
     }
 
+
+    // SCENE PHYSICS
+    // side
     if(MyGame.Player.MoveVector.x > 0) MyGame.Player.MoveVector.x -= Settings.physics.gravity.x * dt;
     if(MyGame.Player.MoveVector.x < 0) MyGame.Player.MoveVector.x += Settings.physics.gravity.x * dt;
     if(MyGame.Player.MoveVector.z > 0) MyGame.Player.MoveVector.z -= Settings.physics.gravity.z * dt;
     if(MyGame.Player.MoveVector.z < 0) MyGame.Player.MoveVector.z += Settings.physics.gravity.z * dt;
     
+    //bottom
     if(MyGame.Player.MoveVector.y > 0) MyGame.Player.MoveVector.y -= Settings.physics.gravity.y * dt;
-    if(MyGame.Player.position.y > 0) MyGame.Player.position.y -= Settings.physics.gravity.y * dt;
-    if(MyGame.Player.position.y < 0) MyGame.Player.position.y = 0;
+    if(MyGame.Player.MoveVector.y < 0) MyGame.Player.MoveVector.y = 0;
 
-    MyGame.Player.position.y += MyGame.Player.MoveVector.y * speed * dt;
+    MyGame.Raycaster = new THREE.Raycaster(MyGame.Player.position, new Vector3(0,-1,0), 0, 10);
+    var collisionResults = MyGame.Raycaster.intersectObjects( MyGame.Scene.children, true );
+    let minDistance = 10;
+    collisionResults.forEach(c => {
+        if(c.distance < minDistance) minDistance = c.distance; 
+    });
     
+    if (minDistance > Settings.physics.gravity.y * dt + 0.1)
+        MyGame.Player.position.y -= Settings.physics.gravity.y * dt;
+    if (minDistance < Settings.physics.gravity.y * dt)
+        MyGame.Player.position.y += Settings.physics.gravity.y * dt;
+    
+    // APPY PLAYER POSITION
     MyGame.Player.position.x += (Math.cos (-MyGame.Player.rotation.y) * speed * MyGame.Player.MoveVector.z) * dt;
+    MyGame.Player.position.y += MyGame.Player.MoveVector.y * speed * dt;
     MyGame.Player.position.z += (Math.sin (-MyGame.Player.rotation.y) * speed * MyGame.Player.MoveVector.z) * dt;
 }
 
