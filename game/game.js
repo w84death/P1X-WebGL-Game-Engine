@@ -21,7 +21,7 @@ MyGame.InitScene = () => {
     MyGame.InitMainCamera(MyGame.Scene.getObjectByName( "Camera" ));
     MyGame.Loop();
 };
-
+MyGame.isOnFloor = false;
 MyGame.PlayerMovement = (dt) => {
     let speed = 2;
     
@@ -42,13 +42,13 @@ MyGame.PlayerMovement = (dt) => {
     if ( MyGame.Keyboard.pressed("up") ) {
         MyGame.Player.MoveVector.z = -1.0;
     }
-    if ( MyGame.Keyboard.pressed("space") && MyGame.Player.position.y < 1) {
+    if ( MyGame.Keyboard.pressed("space") && MyGame.isOnFloor ) {
         MyGame.Player.MoveVector.y = 2.0;
         MyGame.Moog({
-            freq: 500,
-            attack: 200,
-            decay: 400,
-            oscilator: 3,
+            freq: 200,
+            attack: 25,
+            decay: 250,
+            oscilator: 0,
             vol: 0.1
         });
     }
@@ -71,12 +71,12 @@ MyGame.PlayerMovement = (dt) => {
     collisionResults.forEach(c => {
         if(c.distance < minDistance) minDistance = c.distance; 
     });
-    
+    MyGame.isOnFloor = false;
     if (minDistance > Settings.physics.gravity.y * dt + 0.1)
         MyGame.Player.position.y -= Settings.physics.gravity.y * dt;
-    if (minDistance < Settings.physics.gravity.y * dt)
+    else if (minDistance < Settings.physics.gravity.y * dt)
         MyGame.Player.position.y += Settings.physics.gravity.y * dt;
-    
+    else MyGame.isOnFloor = true;
     // APPY PLAYER POSITION
     MyGame.Player.position.x += (Math.cos (-MyGame.Player.rotation.y) * speed * MyGame.Player.MoveVector.z) * dt;
     MyGame.Player.position.y += MyGame.Player.MoveVector.y * speed * dt;
