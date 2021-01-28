@@ -65,13 +65,16 @@ MyGame.PlayerMovement = (dt) => {
     if(MyGame.Player.MoveVector.y > 0) MyGame.Player.MoveVector.y -= Settings.physics.gravity.y * dt;
     if(MyGame.Player.MoveVector.y < 0) MyGame.Player.MoveVector.y = 0;
 
-    MyGame.Raycaster = new THREE.Raycaster(MyGame.Player.position, new Vector3(0,-1,0), 0, 10);
-    var collisionResults = MyGame.Raycaster.intersectObjects( MyGame.Scene.children, true );
+    // floor
+    MyGame.isOnFloor = false;
+    let rayStartPos = new Vector3(MyGame.Player.position.x,MyGame.Player.position.y, MyGame.Player.position.z);
+    MyGame.Raycaster = new THREE.Raycaster(rayStartPos, new Vector3(0,-1,0), 0, 10);
+    let collisionResults = MyGame.Raycaster.intersectObjects( MyGame.Scene.children, true );
     let minDistance = 10;
     collisionResults.forEach(c => {
         if(c.distance < minDistance) minDistance = c.distance; 
     });
-    MyGame.isOnFloor = false;
+    
     if(!collisionResults.length) minDistance = 0;
     if (minDistance > Settings.physics.gravity.y * dt + 0.1)
         MyGame.Player.position.y -= Settings.physics.gravity.y * dt;
@@ -85,12 +88,9 @@ MyGame.PlayerMovement = (dt) => {
     newPosition.y =  MyGame.Player.position.y + MyGame.Player.MoveVector.y * speed * dt;
     newPosition.z =  MyGame.Player.position.z + (Math.sin (-MyGame.Player.rotation.y) * speed * MyGame.Player.MoveVector.z) * dt;
 
-    // MyGame.Raycaster = new THREE.Raycaster(newPosition, new Vector3(0,-1,0), 0, 1);
-    // collisionResults = MyGame.Raycaster.intersectObjects( MyGame.Scene.children, true );
-    // if(collisionResults.length > 0 ){
-        MyGame.Player.position.x = newPosition.x;
-        MyGame.Player.position.z = newPosition.z;
-    // }
+
+    MyGame.Player.position.x = newPosition.x;
+    MyGame.Player.position.z = newPosition.z;   
     MyGame.Player.position.y = newPosition.y;
 }
 
