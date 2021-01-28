@@ -44,6 +44,13 @@ MyGame.PlayerMovement = (dt) => {
     }
     if ( MyGame.Keyboard.pressed("space") && MyGame.Player.position.y < 1) {
         MyGame.Player.MoveVector.y = 2.0;
+        MyGame.Moog({
+            freq: 500,
+            attack: 200,
+            decay: 400,
+            oscilator: 3,
+            vol: 0.1
+        });
     }
 
 
