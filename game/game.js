@@ -40,7 +40,7 @@ MyGame.PlayerMovement = (dt) => {
         MyGame.Player.MoveVector.z = 1.0;
     }
     if ( MyGame.Keyboard.pressed("up") ) {
-        MyGame.Player.MoveVector.z = -2.0;
+        MyGame.Player.MoveVector.z = -1.2;
     }
     if ( MyGame.Keyboard.pressed("space") && MyGame.isOnFloor ) {
         MyGame.Player.MoveVector.y = 2.0;
