@@ -8,7 +8,7 @@
 
 import { Vector2, Vector3 } from '../engine/libs/three.module.js';
 import { Engine } from './../engine/engine.js';
-import { Settings } from './../engine/settings.js';
+import { Settings } from './settings.js';
 
 const MyGame = new Engine(Settings);
 
