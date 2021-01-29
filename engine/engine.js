@@ -221,7 +221,6 @@ const Engine = function(Settings) {
     };
     
     this.MainLoop = () => {
-        
         this.Renderer.render(this.Scene, this.Camera);
         this.Keyboard.update();
     };
