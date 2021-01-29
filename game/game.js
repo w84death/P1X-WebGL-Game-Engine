@@ -8,7 +8,7 @@
 
 import { Vector2, Vector3 } from '../engine/libs/three.module.js';
 import { Engine } from './../engine/engine.js';
-import { Settings } from './../engine/settings.js';
+import { Settings } from './settings.js';
 
 const MyGame = new Engine(Settings);
 
@@ -109,10 +109,10 @@ MyGame.CameraFollow = (player) => {
 MyGame.Loop = () => {
     MyGame.MainLoop.apply(this);
     let deltaTime = MyGame.Clock.getDelta();
-    MyGame.Keyboard.update();
     MyGame.PlayerMovement(deltaTime);
     MyGame.CameraFollow(MyGame.Player.position);
-    document.getElementById('fps').innerHTML = `Delta time: ${Math.round(deltaTime*10000)/10000}ms`;
+
+    document.getElementById('fps').innerHTML = `FPS:  ${Math.round(1/deltaTime)}, Delta time: ${Math.round(deltaTime*10000)/10000}ms`;
     requestAnimationFrame( MyGame.Loop );
 }
 
