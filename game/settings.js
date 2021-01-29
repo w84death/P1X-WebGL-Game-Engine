@@ -40,7 +40,15 @@ const Settings = {
         server: 'ws://0.0.0.0:8080'
     },
     physics: {
-        gravity: { x:1, y:2, z:1}
+        gravity: { x:1, y:3, z:1}
+    },
+    player: {
+        speed: {
+            forward: 1.2,
+            backward: 0.8,
+            rotation: 2.0,
+            jump: 1.3
+        }
     }
 }
 

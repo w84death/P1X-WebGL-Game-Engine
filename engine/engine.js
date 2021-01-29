@@ -5,14 +5,14 @@
  * CREATED: 23-01-2021
  * (c)2021 Cyfrowy Nomada
  */
-
+import { Vector2, Vector3 } from '../engine/libs/three.module.js';
 import { GLTFLoader } from './libs/GLTFLoader.js';
 import { OrbitControls } from './libs/OrbitControls.js';
 
 const Engine = function(Settings) {
     console.log("ENGINE: Engine starting..");
     let engine = this;
-
+    this.Ready = false;
     this.Clock = new THREE.Clock();
     this.Scene = new THREE.Scene();
     this.Renderer = new THREE.WebGLRenderer( {antialias: true});
@@ -139,6 +139,12 @@ const Engine = function(Settings) {
         console.log("ENGINE: Skybox initialized (dummy).");
     };
 
+    this.InitPlayer = () => {
+        this.Player = this.Scene.getObjectByName( "SM_Player" );
+        this.Player.RotateVector = new THREE.Vector3( 0, 0, 0 );
+        this.Player.MoveVector = new THREE.Vector3( 0, 0, 0 );
+    };
+
     this.InitMainCamera = (copyCamera) => {
         this.Camera = new THREE.PerspectiveCamera( 
             Settings.camera.fov, 
@@ -170,7 +176,11 @@ const Engine = function(Settings) {
         
     }
 
-    this.InitScene = () => {};
+    this.InitScene = () => {
+        this.InitPlayer();
+        this.InitMainCamera(this.Scene.getObjectByName( "Camera" ));
+        this.Ready = true;
+    };
 
     this.InitMoog = () => {
         this.Audio = new (window.AudioContext || window.webkitAudioContext)();
@@ -220,7 +230,93 @@ const Engine = function(Settings) {
         });
     };
     
-    this.MainLoop = () => {
+    this.CameraFollow = () => {
+        let pos = this.Player.position;
+        let offset = new THREE.Vector3(
+            pos.x + Settings.camera.follow.box.x, 
+            pos.y + Settings.camera.follow.box.y, 
+            pos.z);
+        this.Camera.position.lerp(
+            offset, 
+            Settings.camera.follow.smooth);
+            this.Camera.lookAt(pos); 
+    }
+
+    this.Physics = (dt) => {
+        let speed = 2;
+    
+        // side
+        if(this.Player.MoveVector.x > 0) this.Player.MoveVector.x -= Settings.physics.gravity.x * dt;
+        if(this.Player.MoveVector.x < 0) this.Player.MoveVector.x += Settings.physics.gravity.x * dt;
+        if(this.Player.MoveVector.z > 0) this.Player.MoveVector.z -= Settings.physics.gravity.z * dt;
+        if(this.Player.MoveVector.z < 0) this.Player.MoveVector.z += Settings.physics.gravity.z * dt;
+        
+        //bottom
+        if(this.Player.MoveVector.y > 0) this.Player.MoveVector.y -= Settings.physics.gravity.y * dt;
+        if(this.Player.MoveVector.y < 0) this.Player.MoveVector.y = 0;
+    
+        // floor
+        this.isOnFloor = false;
+        let rayStartPos = new Vector3(this.Player.position.x,this.Player.position.y, this.Player.position.z);
+        this.Raycaster = new THREE.Raycaster(rayStartPos, new Vector3(0,-1,0), 0, 10);
+        let collisionResults = this.Raycaster.intersectObjects( this.Scene.children, true );
+        let minDistance = 10;
+        collisionResults.forEach(c => {
+            if(c.distance < minDistance) minDistance = c.distance; 
+        });
+        
+        if(!collisionResults.length) minDistance = 0;
+        if (minDistance > Settings.physics.gravity.y * dt + 0.1)
+            this.Player.position.y -= Settings.physics.gravity.y * dt;
+        else if (minDistance < Settings.physics.gravity.y * dt)
+            this.Player.position.y += Settings.physics.gravity.y * dt;
+        else this.Player.isOnFloor = true;
+        
+        // APPY PLAYER POSITION
+        let newPosition = new Vector3();
+        newPosition.x =  this.Player.position.x + (Math.cos (-this.Player.rotation.y) * Settings.player.speed.rotation * this.Player.MoveVector.z) * dt;
+        newPosition.y =  this.Player.position.y + this.Player.MoveVector.y * Settings.player.speed.jump * dt;
+        newPosition.z =  this.Player.position.z + (Math.sin (-this.Player.rotation.y) * Settings.player.speed.rotation * this.Player.MoveVector.z) * dt;
+    
+    
+        this.Player.position.x = newPosition.x;
+        this.Player.position.z = newPosition.z;   
+        this.Player.position.y = newPosition.y;
+    }
+
+   
+    this.PlayerMovement = (dt) => {        
+        if ( this.Keyboard.pressed("left") ) {
+            //this.Player.MoveVector.x = -1.0;
+            this.Player.rotation.y += Settings.player.speed.rotation * dt;
+        }
+        if ( this.Keyboard.pressed("right") ) {
+            this.Player.rotation.y -= Settings.player.speed.rotation * dt;
+        }	
+        if ( this.Keyboard.pressed("down") ) {
+            this.Player.MoveVector.z = Settings.player.speed.backward;
+        }
+        if ( this.Keyboard.pressed("up") ) {
+            this.Player.MoveVector.z = -Settings.player.speed.forward;
+        }
+        if ( this.Keyboard.pressed("space") && this.Player.isOnFloor ) {
+            this.Player.MoveVector.y = Settings.physics.gravity.y * Settings.player.speed.jump;
+            this.Moog({
+                freq: 200,
+                attack: 25,
+                decay: 250,
+                oscilator: 0,
+                vol: 0.1
+            });
+        }
+    }
+
+    this.MainLoop = (deltaTime) => {
+        if(!this.Ready) return;
+
+        this.PlayerMovement(deltaTime);
+        this.Physics(deltaTime);
+        this.CameraFollow();
         this.Renderer.render(this.Scene, this.Camera);
         this.Keyboard.update();
     };
