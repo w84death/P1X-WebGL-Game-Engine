@@ -1,34 +1,23 @@
-/**
- * P1X WEBGL GAME ENGINE
- * GAME TEMPLATE
- * 
- * CREATED: 23-01-2021
- * (c)2021 Cyfrowy Nomada
- */
+const MyGame = new SSEngine(Settings);
 
-import { Vector2, Vector3 } from '../engine/libs/three.module.js';
-import { Engine } from './../engine/engine.js';
-import { Settings } from './settings.js';
-
-const MyGame = new Engine(Settings);
-
-document.getElementById("gameTitle").innerHTML = Settings.game.title;
-document.getElementById("gameVersion").innerHTML = Settings.game.version;
-
-MyGame.Loop = () => {
+MyGame.MyLoop = () => {
     let deltaTime = MyGame.Clock.getDelta();
-    MyGame.MainLoop.apply(this, [deltaTime]);
+    MyGame.Renderer.render(MyGame.Scene, MyGame.Camera);
 
-    
-    document.getElementById('fps').innerHTML = `FPS:  ${Math.round(1/deltaTime)}, Delta time: ${Math.round(deltaTime*10000)/10000}ms`;
-    requestAnimationFrame( MyGame.Loop );
+    document.title = `FPS: ${Math.round(1/deltaTime)}, dt: ${Math.round(deltaTime*10000)/10000}ms | ${Settings.game.title}`;
+    requestAnimationFrame( MyGame.MyLoop );
 }
 
-MyGame.Init();
-MyGame.Loop();
+MyGame.InitSampleScene = () => {
+    const geometry = new THREE.SphereGeometry(1, 16, 16);
+    const material = new THREE.MeshLambertMaterial({color: 0xffcc00});
+    const mesh = new THREE.Mesh(geometry, material);
+    MyGame.Scene.add(mesh);
 
+}
 
+console.log(`GAME: Starting [${Settings.game.title}].`);
+console.log(`GAME: Version [${Settings.game.version}].`);
 
-
-
-
+MyGame.InitSampleScene();
+MyGame.MyLoop();
