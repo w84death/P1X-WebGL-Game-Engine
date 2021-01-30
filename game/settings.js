@@ -5,19 +5,23 @@ const Settings = {
         version: 'pre-alpha0'
     },
     camera: {
-        pos: {x:0, y:2, z:6 },
+        pos: {x:0, y:2, z:-8 },
         follow: {
             smooth: 0.01, 
             box: { x:1.5, y:2 },
         },
         plane: { near: 0.1, far: 30000 },
-        fov: 50,
+        fov: 40,
         distance: {min:1, max:8 },
         angle: {polar: Math.PI * 0.44}
     },
     environment: {
-        background: 0x222222,
-        fog: { enabled: true, color: 0x666666, near: 6, far: 12 },
+        background: 0xaabbff,
+        fog: { 
+            enabled: true, 
+            color: 0xaabbff, 
+            near: 40, 
+            far: 120 },
         sun: { color: 0xffffee, power: 1 },
         ambinet: 0x444444,
         sky: { skybox:  '' },
@@ -26,7 +30,13 @@ const Settings = {
         }
     },
     physics: {
-        gravity: { x:1, y:9.8, z:1}
+        gravity: { x:1, y:9.8, z:1},
+        rotation: { x:1, y:1, z:1 }
+    },
+    road: {
+        blocks: 12,
+        size: {x:10, y:0, z: 10},
+        speed: {max: 64}
     },
     player: {
         speed: {
