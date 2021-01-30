@@ -94,7 +94,7 @@ console.log(`GAME: Version [${Settings.game.version}].`);
 MyGame.RoadSpeedVector = 0.0;
 MyGame.Loader.ImportModel({
     path: `./${Settings.game.folder}/models/road_block_1.glb`,
-    position: {x:0, y:0, z:0}
+    position: {x:0, y:-1, z:0}
 }, MyGame.InitScene);
 
 
