@@ -79,7 +79,7 @@ const Engine = function(Settings) {
     };
 
     this.InitLights = () => {
-        const hemiLight = new THREE.HemisphereLight( 0xffffff, 0xffffff, 0.1 );
+        const hemiLight = new THREE.HemisphereLight( 0xffffff, 0xffffff, 0.5 );
         hemiLight.color.setHSL( 0.6, 0.6, 0.6 );
         hemiLight.groundColor.setHSL( 0.1, 1, 0.4 );
         hemiLight.position.set( 0, 50, 0 );
@@ -140,7 +140,7 @@ const Engine = function(Settings) {
     };
 
     this.InitPlayer = () => {
-        this.Player = this.Scene.getObjectByName( "SM_Player" );
+        this.Player = this.Scene.getObjectByName( "Player" );
         this.Player.RotateVector = new THREE.Vector3( 0, 0, 0 );
         this.Player.MoveVector = new THREE.Vector3( 0, 0, 0 );
     };
@@ -170,7 +170,7 @@ const Engine = function(Settings) {
     this.LoadMainScene = () => {
         console.log(`ENGINE:  Importing main scene [${Settings.game.scene}]...`);
         this.ImportModel({
-            path: `./game/scenes/${Settings.game.scene}.glb`,
+            path: `./${Settings.game.folder}/scenes/${Settings.game.scene}.glb`,
             position: {x:0, y:0, z:0}
         }, this.InitScene);
         
@@ -242,9 +242,7 @@ const Engine = function(Settings) {
             this.Camera.lookAt(pos); 
     }
 
-    this.Physics = (dt) => {
-        let speed = 2;
-    
+    this.Physics = (dt) => {   
         // side
         if(this.Player.MoveVector.x > 0) this.Player.MoveVector.x -= Settings.physics.gravity.x * dt;
         if(this.Player.MoveVector.x < 0) this.Player.MoveVector.x += Settings.physics.gravity.x * dt;
@@ -256,11 +254,11 @@ const Engine = function(Settings) {
         if(this.Player.MoveVector.y < 0) this.Player.MoveVector.y = 0;
     
         // floor
-        this.isOnFloor = false;
-        let rayStartPos = new Vector3(this.Player.position.x,this.Player.position.y, this.Player.position.z);
+        this.Player.isOnFloor = false;
+        let rayStartPos = new Vector3(this.Player.position.x, this.Player.position.y, this.Player.position.z);
         this.Raycaster = new THREE.Raycaster(rayStartPos, new Vector3(0,-1,0), 0, 10);
         let collisionResults = this.Raycaster.intersectObjects( this.Scene.children, true );
-        let minDistance = 10;
+        let minDistance = 4;
         collisionResults.forEach(c => {
             if(c.distance < minDistance) minDistance = c.distance; 
         });
@@ -287,7 +285,6 @@ const Engine = function(Settings) {
    
     this.PlayerMovement = (dt) => {        
         if ( this.Keyboard.pressed("left") ) {
-            //this.Player.MoveVector.x = -1.0;
             this.Player.rotation.y += Settings.player.speed.rotation * dt;
         }
         if ( this.Keyboard.pressed("right") ) {
