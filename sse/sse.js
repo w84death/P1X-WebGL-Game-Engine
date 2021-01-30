@@ -9,6 +9,7 @@ class SSEngine {
         this.InitRenderer();
         this.InitCamera();
         this.InitLight();
+        this.InitEnvironment();
         this.InitMoog();
 
         window.addEventListener('resize', () => {
@@ -90,6 +91,18 @@ class SSEngine {
         this.Scene.add( light );
         console.log(" * LIGHTING: Lights initialized.");
     }
+
+    InitEnvironment() {
+        this.Scene.background = new THREE.Color(this.Settings.environment.background);
+        if(this.Settings.environment.fog.enabled)
+            this.Scene.fog = new THREE.Fog( 
+                this.Settings.environment.fog.color, 
+                this.Settings.environment.fog.near, 
+                this.Settings.environment.fog.far );
+
+        this.Scene.add( new THREE.AmbientLight(this.Settings.environment.ambinet));
+        console.log("ENVIRONMENT: Initialized.");
+    };
 
     InitMoog() {
         this.Audio = new (window.AudioContext || window.webkitAudioContext)();

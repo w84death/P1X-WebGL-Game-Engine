@@ -5,7 +5,7 @@ const Settings = {
         version: 'pre-alpha0'
     },
     camera: {
-        pos: {x:0, y:5, z:10 },
+        pos: {x:0, y:2, z:6 },
         follow: {
             smooth: 0.01, 
             box: { x:1.5, y:2 },
