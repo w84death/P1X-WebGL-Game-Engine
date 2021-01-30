@@ -82,8 +82,6 @@ MyGame.HandleClick = () => {
     MyGame.RoadSpeedVector -= 4;
     MyGame.Box.RotateVector.x = 2;
     MyGame.Box.MoveVector.y = MyGame.Box.position.y < 2 ? 3 : 0;
-    MyGame.Moog({freq: 1000,attack: 80,decay: 80,oscilator: 0,vol: 0.2});
-    MyGame.Moog({freq: 400,attack: 200,decay: 500,oscilator: 0,vol: 0.2});
 }
 
 window.addEventListener('click', MyGame.HandleClick);
@@ -97,7 +95,3 @@ MyGame.Loader.ImportModel({
     position: {x:0, y:-1, z:0}
 }, MyGame.InitScene);
 
-
-MyGame.Moog({freq: 1000,attack: 80,decay: 400,oscilator: 0,vol: 0.2});
-MyGame.Moog({freq: 400,attack: 200,decay: 500,oscilator: 0,vol: 0.2});
-MyGame.Moog({freq: 500,attack: 200,decay: 1000,oscilator: 0,vol: 0.2});
