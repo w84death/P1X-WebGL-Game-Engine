@@ -80,14 +80,18 @@ MyGame.Mouse = {
 }
 
 MyGame.SteeringLoop = () => {
-    
-    if(MyGame.Mouse.x > MyGame.Player.position.x )
-        MyGame.MovePlayer(-1 * Math.min((MyGame.Mouse.x - MyGame.Player.position.x) * .1, 1));
-        MyGame.Player.RotateVector.y = Math.min((-1) * .001, .3);
+    let dist = 0;
+    if(MyGame.Mouse.x > MyGame.Player.position.x ){
+        dist = MyGame.Mouse.x - MyGame.Player.position.x;
+        MyGame.MovePlayer(-1 * Math.min(dist * .1, 1));
+        MyGame.Player.RotateVector.y = Math.min(dist, .3);
+    }
         
-    if( MyGame.Mouse.x < MyGame.Player.position.x)
-        MyGame.MovePlayer(1 * Math.min((MyGame.Player.position.x - MyGame.Mouse.x) * .1, 1) ); 
-        MyGame.Player.RotateVector.y = Math.min((-1) * .001, .3);
+    if( MyGame.Mouse.x < MyGame.Player.position.x){
+        dist = MyGame.Player.position.x - MyGame.Mouse.x
+        MyGame.MovePlayer(1 * Math.min(dist * .1, 1) ); 
+        MyGame.Player.RotateVector.y = -Math.min(dist, .3);
+    }
 
     if(MyGame.Mouse.y > 0)
         MyGame.RoadSpeedVector -= MyGame.Settings.player.speed.forward * (MyGame.Mouse.y - .5);
@@ -128,9 +132,9 @@ MyGame.ApplySteering = (element, deltaTime) => {
         MyGame.Player.RotateVector.y *= Math.abs(MyGame.RoadSpeedVector * .1);
     }else{
         if(MyGame.Player.rotation.y > 0) 
-            MyGame.Player.rotation.y -= Math.abs(MyGame.RoadSpeedVector * .025) * deltaTime;
+            MyGame.Player.rotation.y -= Math.abs(MyGame.RoadSpeedVector * .0025) * deltaTime;
         if(MyGame.Player.rotation.y < 0) 
-            MyGame.Player.rotation.y += Math.abs(MyGame.RoadSpeedVector * .025) * deltaTime;
+            MyGame.Player.rotation.y += Math.abs(MyGame.RoadSpeedVector * .0025) * deltaTime;
     }
         
     MyGame.Player.rotation.y += MyGame.Player.RotateVector.y * deltaTime;
