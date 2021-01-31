@@ -2,7 +2,7 @@ class SSCamera {
     constructor (settings) {
         this.Camera = new THREE.PerspectiveCamera( 
             settings.camera.fov, 
-            window.innerWidth/window.innerHeight, 
+            settings.game.width/settings.game.height, 
             settings.camera.plane.near, 
             settings.camera.plane.far);
     

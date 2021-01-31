@@ -13,7 +13,7 @@ class SSRenderer {
                 return saturate( Uncharted2Helper( color ) / Uncharted2Helper( vec3( toneMappingWhitePoint ) ) );
             }`
         );
-        this.Renderer.setSize( window.innerWidth, window.innerHeight);
+        this.Renderer.setSize(settings.game.width, settings.game.height);
         this.Renderer.setPixelRatio( window.devicePixelRatio );
         this.Renderer.setClearColor( settings.environment.background );
         this.Renderer.toneMapping = THREE.ACESFilmicToneMapping;

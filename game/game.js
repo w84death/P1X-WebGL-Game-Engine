@@ -27,11 +27,10 @@ MyGame.PostAddScenery = () => {
     console.log(`GAME: Scenery post-add run.`);
 }
 
-MyGame.AddScenery = (block) => {
+MyGame.AddScenery = (block, rate) => {
     MyGame.SceneryBlock.push(block);
-
     for (let i = 0; i < MyGame.Settings.road.blocks; i++) {
-        if(Math.random() > .6){
+        if(Math.random() < rate){
             let block = MyGame.SceneryBlock[MyGame.SceneryBlock.length-1].clone();
             block.position.z = i * MyGame.Settings.road.size.z;
             MyGame.Scenery  .push(block);
@@ -157,7 +156,7 @@ MyGame.ApplySteering = (element, deltaTime) => {
         MyGame.Moog({freq: 300,attack: 10,decay: 500,oscilator: 0,vol: 0.2});
     }
 
-    MyGame.Player.position.x += MyGame.Player.MoveVector.x * deltaTime;
+    MyGame.Player.position.x += MyGame.Player.MoveVector.x * deltaTime * MyGame.Settings.player.speed.side;
     MyGame.Player.position.y += MyGame.Player.MoveVector.y * deltaTime;
 };
 
@@ -229,24 +228,31 @@ MyGame.Loader.ImportModel({
 
 
 // SCENERY
-MyGame.SceneryBlocksToLoad = 3;
+MyGame.SceneryBlocksToLoad = 4;
 
 MyGame.Loader.ImportModel({
     path: `./${Settings.game.folder}/models/scenery_block_1.glb`,
-    position: {x:0, y:0, z:0}
+    position: {x:0, y:0, z:0},
+    rate: 0.7
 }, MyGame.AddScenery);
 
 MyGame.Loader.ImportModel({
     path: `./${Settings.game.folder}/models/scenery_block_2.glb`,
-    position: {x:0, y:0, z:0}
+    position: {x:0, y:0, z:0},
+    rate: 0.3
 }, MyGame.AddScenery);
 
 MyGame.Loader.ImportModel({
     path: `./${Settings.game.folder}/models/scenery_block_3.glb`,
-    position: {x:0, y:0, z:0}
+    position: {x:0, y:0, z:0},
+    rate: 0.05
 }, MyGame.AddScenery);
 
-
+MyGame.Loader.ImportModel({
+    path: `./${Settings.game.folder}/models/scenery_block_4.glb`,
+    position: {x:0, y:0, z:0},
+    rate: .9
+}, MyGame.AddScenery);
 
 MyGame.RoadSpeedVector = -10.0;
 

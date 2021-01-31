@@ -2,16 +2,18 @@ const Settings = {
     game: { 
         title: 'Simple Game for Simple Engine',
         folder: 'game',
-        version: 'pre-alpha0'
+        version: 'pre-alpha0',
+        width: 320,
+        height: 480
     },
     camera: {
-        pos: {x:0, y:2, z:-8 },
+        pos: {x:0, y:2.5, z:-2.5 },
         follow: {
             smooth: 0.01, 
             box: { x:1.5, y:2 },
         },
         plane: { near: 0.1, far: 30000 },
-        fov: 40,
+        fov: 75,
         distance: {min:1, max:8 },
         angle: {polar: Math.PI * 0.44}
     },
@@ -41,7 +43,7 @@ const Settings = {
     player: {
         speed: {
             forward: .5,
-            side: 0.1,
+            side: 6,
             backward: 0.8,
             rotation: 2.0,
             jump: 1.2

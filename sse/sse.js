@@ -14,14 +14,17 @@ class SSEngine {
         this.Loader = new SSELoader(GLTFLoader);
 
         window.addEventListener('resize', () => {
-            this.HandleResize(this.Renderer, this.Camera);
+            this.HandleResize(this.Renderer, this.Camera, {
+                w:this.Settings.game.width,
+                h:this.Settings.game.height
+            });
         });
         console.log(`ENGINE: Started.`);
     }
 
-    HandleResize(renderer, camera) {
-        renderer.setSize( window.innerWidth, window.innerHeight);
-        camera.aspect = window.innerWidth / window.innerHeight;
+    HandleResize(renderer, camera, size) {
+        renderer.setSize( size.w, size.h);
+        camera.aspect = size.w / size.h;
         camera.updateProjectionMatrix();
     }
 

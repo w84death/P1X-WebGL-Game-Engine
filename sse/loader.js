@@ -10,7 +10,7 @@ class SSELoader {
             gltf.scene.position.y = options.position.y;
             gltf.scene.position.z = options.position.z;
             console.log(`ENGINE: Model [${gltf.scene.children[0].name}] imported.`);
-            if(callback) callback(gltf.scene);
+            if(callback) callback(gltf.scene, options.rate);
         }, undefined, function ( error ) {
             console.error( error );
         });
