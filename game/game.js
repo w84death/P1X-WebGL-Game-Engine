@@ -81,38 +81,42 @@ MyGame.Mouse = {
 
 MyGame.SteeringLoop = () => {
     
-    let dist = MyGame.Mouse.x - MyGame.Player.position.x ;
-    if(dist > 0 )
-        MyGame.MovePlayer(1 * Math.min((MyGame.Mouse.x - MyGame.Player.position.x) * .001, 1));
-        MyGame.Player.RotateVector.y = Math.min((-dist) * .001, .3);
+    if(MyGame.Mouse.x > MyGame.Player.position.x )
+        MyGame.MovePlayer(-1 * Math.min((MyGame.Mouse.x - MyGame.Player.position.x) * .1, 1));
+        MyGame.Player.RotateVector.y = Math.min((-1) * .001, .3);
         
-    if( dist < 0)
-        MyGame.MovePlayer(-1 * Math.min((MyGame.Player.position.x - MyGame.Mouse.x) * .001, 1) ); 
-        MyGame.Player.RotateVector.y = Math.min((-dist) * .001, .3);
+    if( MyGame.Mouse.x < MyGame.Player.position.x)
+        MyGame.MovePlayer(1 * Math.min((MyGame.Player.position.x - MyGame.Mouse.x) * .1, 1) ); 
+        MyGame.Player.RotateVector.y = Math.min((-1) * .001, .3);
 
-    if(MyGame.Mouse.y < window.innerHeight * .5)
-        MyGame.RoadSpeedVector -= MyGame.Settings.player.speed.forward * Math.min((window.innerHeight * .5 - MyGame.Mouse.y) * .0025, 1);
+    if(MyGame.Mouse.y > 0)
+        MyGame.RoadSpeedVector -= MyGame.Settings.player.speed.forward * (MyGame.Mouse.y - .5);
 }
 
 MyGame.HandleMouse = (ev) => {
-    let mx = ev.x - window.innerWidth * .5;
-    MyGame.Mouse.x = mx;
-    MyGame.Mouse.y = ev.y;
+    var vec = new THREE.Vector3();
+    var pos = new THREE.Vector3();
+
+    vec.set(
+        ( ev.clientX / window.innerWidth ) * 2 - 1,
+        - ( ev.clientY / window.innerHeight ) * 2 + 1,
+        0.5 );
+
+    vec.unproject( MyGame.Camera );
+
+    vec.sub( MyGame.Camera.position ).normalize();
+
+    var distance = - MyGame.Camera.position.z / vec.z;
+
+    pos.copy( MyGame.Camera.position ).add( vec.multiplyScalar( distance ) );
+
+    MyGame.Mouse.x = pos.x;
+    MyGame.Mouse.y = pos.y;
 }
 
 MyGame.ApplyPhysics = (element, dt) => {
     
-    // if(element.MoveVector.x > 0)
-    //     element.MoveVector.x -= MyGame.Settings.physics.gravity.x * dt;
-    // if(element.MoveVector.x < 0)
-    //     element.MoveVector.x += MyGame.Settings.physics.gravity.x * dt;
 
-    // if (element.position.y > 0)
-    //     element.MoveVector.y -= MyGame.Settings.physics.gravity.y * dt;
-    // else {
-    //     element.position.y = 0;
-    //     element.MoveVector.y = 0;
-    // }
 }
 
 MyGame.ApplySteering = (element, deltaTime) => {
@@ -162,7 +166,7 @@ MyGame.MyLoop = () => {
     }
     if(MyGame.Player){
         MyGame.ApplySteering(MyGame.Player, deltaTime);
-        MyGame.ApplyPhysics(MyGame.Player, deltaTime);
+        //MyGame.ApplyPhysics(MyGame.Player, deltaTime);
         MyGame.SteeringLoop();
     }
 
