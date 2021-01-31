@@ -30,7 +30,7 @@ const Settings = {
         }
     },
     physics: {
-        gravity: { x:1, y:9.8, z:1},
+        gravity: { x:.3, y:9.8, z:1},
         rotation: { x:1, y:1, z:1 }
     },
     road: {

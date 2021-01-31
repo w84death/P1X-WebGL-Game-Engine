@@ -5,6 +5,12 @@ const MyGame = new SSEngine(Settings, GLTFLoader);
 MyGame.ApplyPhysics = (element, dt) => {
     element.RotateVector.x -= element.RotateVector.x > 0 ? MyGame.Settings.physics.rotation.x * dt : 0;
     element.RotateVector.x = element.RotateVector.x < 0 ? 0 : element.RotateVector.x;
+    
+    if(element.MoveVector.x > 0)
+        element.MoveVector.x -= MyGame.Settings.physics.gravity.x * dt;
+        if(element.MoveVector.x < 0)
+        element.MoveVector.x += MyGame.Settings.physics.gravity.x * dt;
+
     if (element.position.y > 0)
         element.MoveVector.y -= MyGame.Settings.physics.gravity.y * dt;
     else {
@@ -80,12 +86,15 @@ MyGame.InitPlayer = (player) => {
 }
 
 MyGame.MovePlayer = (dir) => {
-    MyGame.RoadSpeedVector -= dir;
+    //MyGame.RoadSpeedVector -= dir;
+    MyGame.Player.MoveVector.x += dir * -0.2;
+
 }
 
 MyGame.HandleClick = (ev) => {
     if (ev.x < window.innerWidth  * .5) MyGame.MovePlayer(-1);
     else MyGame.MovePlayer(1);
+    
 }
 
 
@@ -95,7 +104,7 @@ MyGame.MyLoop = () => {
 
     if(MyGame.RoadSpeedVector < -MyGame.Settings.road.speed.max) MyGame.RoadSpeedVector = -MyGame.Settings.road.speed.max;
     if(MyGame.RoadSpeedVector > 0) MyGame.RoadSpeedVector = 0;
-
+    
     if(MyGame.Player){
         let wheels = MyGame.Player.getObjectByName("Wheels");
         if(wheels) wheels.rotation.x -= MyGame.RoadSpeedVector * .0033;    
@@ -103,6 +112,17 @@ MyGame.MyLoop = () => {
         MyGame.Player.rotation.x += MyGame.Player.RotateVector.x * deltaTime;
         MyGame.Player.rotation.y += MyGame.Player.RotateVector.y * deltaTime;
         MyGame.Player.position.x += MyGame.Player.MoveVector.x * deltaTime;
+        if(MyGame.Player.position.x < -2) {
+            MyGame.Player.position.x = -2;
+            MyGame.Player.MoveVector.x = 1;
+            MyGame.Moog({freq: 300,attack: 10,decay: 500,oscilator: 0,vol: 0.2});
+        }
+        if(MyGame.Player.position.x > 2) {
+            MyGame.Player.position.x = 2;
+            MyGame.Player.MoveVector.x = -1;
+            MyGame.Moog({freq: 300,attack: 10,decay: 500,oscilator: 0,vol: 0.2});
+        }
+
         MyGame.Player.position.y += MyGame.Player.MoveVector.y * deltaTime;
         MyGame.ApplyPhysics(MyGame.Player, deltaTime);
     }
@@ -129,6 +149,10 @@ MyGame.MyLoop = () => {
 MyGame.WelcomeLog = () => {
     console.log(`GAME: Starting [${Settings.game.title}].`);
     console.log(`GAME: Version [${Settings.game.version}].`);
+
+    MyGame.Moog({freq: 1000,attack: 80,decay: 400,oscilator: 0,vol: 0.2});
+    MyGame.Moog({freq: 400,attack: 200,decay: 500,oscilator: 0,vol: 0.2});
+    MyGame.Moog({freq: 500,attack: 200,decay: 1000,oscilator: 0,vol: 0.2});
 }
 
 window.addEventListener('click', MyGame.HandleClick);
