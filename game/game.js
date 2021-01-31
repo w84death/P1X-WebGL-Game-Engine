@@ -8,7 +8,7 @@ MyGame.ApplyPhysics = (element, dt) => {
     
     if(element.MoveVector.x > 0)
         element.MoveVector.x -= MyGame.Settings.physics.gravity.x * dt;
-        if(element.MoveVector.x < 0)
+    if(element.MoveVector.x < 0)
         element.MoveVector.x += MyGame.Settings.physics.gravity.x * dt;
 
     if (element.position.y > 0)
@@ -16,7 +16,6 @@ MyGame.ApplyPhysics = (element, dt) => {
     else {
         element.position.y = 0;
         element.MoveVector.y = 0;
-        //element.RotateVector.x = 0;
     }
 }
 
@@ -36,7 +35,7 @@ MyGame.InitScenery = () => {
 }
 
 MyGame.PostAddScenery = () => {
-    if(MyGame.SceneryBlock.length == 2){
+    if(MyGame.SceneryBlock.length == MyGame.SceneryBlocksToLoad){
         MyGame.Scenery.forEach(block => {
             MyGame.Scene.add(block);
         });
@@ -48,9 +47,11 @@ MyGame.AddScenery = (block) => {
     MyGame.SceneryBlock.push(block);
 
     for (let i = 0; i < MyGame.Settings.road.blocks; i++) {
-        let block = MyGame.SceneryBlock[MyGame.SceneryBlock.length-1].clone();
-        block.position.z = i * MyGame.Settings.road.size.z;
-        MyGame.Scenery  .push(block);        
+        if(Math.random() > .8){
+            let block = MyGame.SceneryBlock[MyGame.SceneryBlock.length-1].clone();
+            block.position.z = i * MyGame.Settings.road.size.z;
+            MyGame.Scenery  .push(block);
+        }        
     }
     
     console.log(`GAME: Added scenery model.`);
@@ -92,9 +93,12 @@ MyGame.MovePlayer = (dir) => {
 }
 
 MyGame.HandleClick = (ev) => {
-    if (ev.x < window.innerWidth  * .5) MyGame.MovePlayer(-1);
-    else MyGame.MovePlayer(1);
-    
+    if (ev.y < window.innerHeight * .5) MyGame.RoadSpeedVector -= MyGame.Settings.player.speed.forward;
+    else MyGame.RoadSpeedVector += MyGame.Settings.player.speed.forward;
+    if( MyGame.RoadSpeedVector < -12){
+        if (ev.x < window.innerWidth  * .5) MyGame.MovePlayer(-1);
+        else MyGame.MovePlayer(1);
+    }
 }
 
 
@@ -112,13 +116,13 @@ MyGame.MyLoop = () => {
         MyGame.Player.rotation.x += MyGame.Player.RotateVector.x * deltaTime;
         MyGame.Player.rotation.y += MyGame.Player.RotateVector.y * deltaTime;
         MyGame.Player.position.x += MyGame.Player.MoveVector.x * deltaTime;
-        if(MyGame.Player.position.x < -2) {
-            MyGame.Player.position.x = -2;
+        if(MyGame.Player.position.x < -1.8) {
+            MyGame.Player.position.x = -1.8;
             MyGame.Player.MoveVector.x = 1;
             MyGame.Moog({freq: 300,attack: 10,decay: 500,oscilator: 0,vol: 0.2});
         }
-        if(MyGame.Player.position.x > 2) {
-            MyGame.Player.position.x = 2;
+        if(MyGame.Player.position.x > 1.8) {
+            MyGame.Player.position.x = 1.8;
             MyGame.Player.MoveVector.x = -1;
             MyGame.Moog({freq: 300,attack: 10,decay: 500,oscilator: 0,vol: 0.2});
         }
@@ -160,10 +164,22 @@ window.addEventListener('click', MyGame.HandleClick);
 MyGame.InitScenery();
 MyGame.WelcomeLog();
 
+
+// ROAD
+MyGame.Loader.ImportModel({
+    path: `./${Settings.game.folder}/models/road_block_1.glb`,
+    position: {x:0, y:-1, z:0}
+}, MyGame.InitScene);
+
+// PLAYER
 MyGame.Loader.ImportModel({
     path: `./${Settings.game.folder}/models/player.glb`,
     position: {x:0, y:0, z:0}
 }, MyGame.InitPlayer);
+
+
+// SCENERY
+MyGame.SceneryBlocksToLoad = 3;
 
 MyGame.Loader.ImportModel({
     path: `./${Settings.game.folder}/models/scenery_block_1.glb`,
@@ -176,9 +192,11 @@ MyGame.Loader.ImportModel({
 }, MyGame.AddScenery);
 
 MyGame.Loader.ImportModel({
-    path: `./${Settings.game.folder}/models/road_block_1.glb`,
-    position: {x:0, y:-1, z:0}
-}, MyGame.InitScene);
+    path: `./${Settings.game.folder}/models/scenery_block_3.glb`,
+    position: {x:0, y:0, z:0}
+}, MyGame.AddScenery);
+
+
 
 MyGame.RoadSpeedVector = -10.0;
 
