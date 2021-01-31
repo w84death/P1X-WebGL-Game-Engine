@@ -3,8 +3,6 @@ import { GLTFLoader } from './../sse/GLTFLoader.js';
 const MyGame = new SSEngine(Settings, GLTFLoader);
 
 MyGame.ApplyPhysics = (element, dt) => {
-    element.RotateVector.x -= element.RotateVector.x > 0 ? MyGame.Settings.physics.rotation.x * dt : 0;
-    element.RotateVector.x = element.RotateVector.x < 0 ? 0 : element.RotateVector.x;
     
     if(element.MoveVector.x > 0)
         element.MoveVector.x -= MyGame.Settings.physics.gravity.x * dt;
@@ -47,7 +45,7 @@ MyGame.AddScenery = (block) => {
     MyGame.SceneryBlock.push(block);
 
     for (let i = 0; i < MyGame.Settings.road.blocks; i++) {
-        if(Math.random() > .8){
+        if(Math.random() > .6){
             let block = MyGame.SceneryBlock[MyGame.SceneryBlock.length-1].clone();
             block.position.z = i * MyGame.Settings.road.size.z;
             MyGame.Scenery  .push(block);
@@ -88,33 +86,41 @@ MyGame.InitPlayer = (player) => {
 
 MyGame.MovePlayer = (dir) => {
     MyGame.Player.MoveVector.x += dir * -0.2;
-
 }
 
-MyGame.HandleClick = (ev) => {
-    if (ev.y < window.innerHeight * .5 && ev.x > window.innerWidth  * .3 && ev.x < window.innerWidth  * .7) MyGame.RoadSpeedVector -= MyGame.Settings.player.speed.forward;
-    else MyGame.RoadSpeedVector += MyGame.Settings.player.speed.forward;
+MyGame.HandleMouse = (ev) => {
+    if (ev.y < window.innerHeight * .5) MyGame.RoadSpeedVector -= MyGame.Settings.player.speed.forward;
     if( MyGame.RoadSpeedVector < -12){
-        if (ev.x < window.innerWidth  * .3) MyGame.MovePlayer(-1);
-        if (ev.x > window.innerWidth  * .7) MyGame.MovePlayer(1);
+        if (ev.x < window.innerWidth * .5) MyGame.MovePlayer(-1);
+        if (ev.x > window.innerWidth * .5) MyGame.MovePlayer(1);
     }
 }
-
 
 MyGame.MyLoop = () => {
     let deltaTime = MyGame.Clock.getDelta();
     MyGame.Renderer.render(MyGame.Scene, MyGame.Camera);
 
+    if(MyGame.RoadSpeedVector < 0) MyGame.RoadSpeedVector += MyGame.Settings.physics.gravity.x;
     if(MyGame.RoadSpeedVector < -MyGame.Settings.road.speed.max) MyGame.RoadSpeedVector = -MyGame.Settings.road.speed.max;
-    if(MyGame.RoadSpeedVector > 0) MyGame.RoadSpeedVector = 0;
-    
+    if(MyGame.RoadSpeedVector > 0) {
+        MyGame.RoadSpeedVector = 0;
+        MyGame.Player.MoveVector.x = 0;
+    }
     if(MyGame.Player){
         let wheels = MyGame.Player.getObjectByName("Wheels");
         if(wheels) wheels.rotation.x -= MyGame.RoadSpeedVector * .0033;    
+        MyGame.Player.RotateVector.y = MyGame.Player.MoveVector.x * 0.2;
         
         MyGame.Player.rotation.x += MyGame.Player.RotateVector.x * deltaTime;
         MyGame.Player.rotation.y += MyGame.Player.RotateVector.y * deltaTime;
-        MyGame.Player.position.x += MyGame.Player.MoveVector.x * deltaTime;
+        if(MyGame.Player.rotation.y > MyGame.Settings.player.rotation.y)
+            MyGame.Player.rotation.y = MyGame.Settings.player.rotation.y;
+        if(MyGame.Player.rotation.y < -MyGame.Settings.player.rotation.y)
+            MyGame.Player.rotation.y = -MyGame.Settings.player.rotation.y;
+
+        if(MyGame.RoadSpeedVector < -12)
+            MyGame.Player.position.x += MyGame.Player.MoveVector.x *  MyGame.Settings.player.speed.side * deltaTime;
+        
         if(MyGame.Player.position.x < -1.8) {
             MyGame.Player.position.x = -1.8;
             MyGame.Player.MoveVector.x = 1;
@@ -128,6 +134,10 @@ MyGame.MyLoop = () => {
             MyGame.Moog({freq: 300,attack: 10,decay: 500,oscilator: 0,vol: 0.2});
         }
 
+        if(MyGame.Player.rotation.y > 0) MyGame.Player.rotation.y -= MyGame.Settings.physics.rotation.x * deltaTime;
+        if(MyGame.Player.rotation.y < 0) MyGame.Player.rotation.y += MyGame.Settings.physics.rotation.x * deltaTime;
+
+        
         MyGame.Player.position.y += MyGame.Player.MoveVector.y * deltaTime;
         MyGame.ApplyPhysics(MyGame.Player, deltaTime);
     }
@@ -160,7 +170,7 @@ MyGame.WelcomeLog = () => {
     MyGame.Moog({freq: 500,attack: 200,decay: 1000,oscilator: 0,vol: 0.2});
 }
 
-window.addEventListener('click', MyGame.HandleClick);
+window.addEventListener('mousemove', MyGame.HandleMouse);
 
 MyGame.InitScenery();
 MyGame.WelcomeLog();

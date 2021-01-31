@@ -30,8 +30,8 @@ const Settings = {
         }
     },
     physics: {
-        gravity: { x:.3, y:9.8, z:1},
-        rotation: { x:1, y:1, z:1 }
+        gravity: { x:.1, y:9.8, z:1},
+        rotation: { x:1, y:5.5, z:1 }
     },
     road: {
         blocks: 24,
@@ -40,10 +40,12 @@ const Settings = {
     },
     player: {
         speed: {
-            forward: 1.2,
+            forward: .5,
+            side: 0.1,
             backward: 0.8,
             rotation: 2.0,
             jump: 1.2
-        }
+        },
+        rotation: {x: 0, y:0.3, z:0}
     }
 }
