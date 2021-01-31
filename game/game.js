@@ -84,13 +84,13 @@ MyGame.SteeringLoop = () => {
     if(MyGame.Mouse.x > MyGame.Player.position.x ){
         dist = MyGame.Mouse.x - MyGame.Player.position.x;
         MyGame.MovePlayer(-1 * Math.min(dist * .1, 1));
-        MyGame.Player.RotateVector.y = Math.min(dist, .3);
+        MyGame.Player.RotateVector.y = Math.min(dist * .5, .3);
     }
         
     if( MyGame.Mouse.x < MyGame.Player.position.x){
         dist = MyGame.Player.position.x - MyGame.Mouse.x
         MyGame.MovePlayer(1 * Math.min(dist * .1, 1) ); 
-        MyGame.Player.RotateVector.y = -Math.min(dist, .3);
+        MyGame.Player.RotateVector.y = -Math.min(dist * .5, .3);
     }
 
     if(MyGame.Mouse.y > 0)
@@ -141,14 +141,17 @@ MyGame.ApplySteering = (element, deltaTime) => {
     if(MyGame.Player.rotation.y < -0.3) MyGame.Player.rotation.y = -0.3;
     if(MyGame.Player.rotation.y > 0.3) MyGame.Player.rotation.y = 0.3;
         
-    if(MyGame.Player.position.x < -1.8) {
-        MyGame.Player.position.x = -1.8;
+    if(MyGame.Player.position.x < -2 || MyGame.Player.position.x > 2)
+        MyGame.RoadSpeedVector *= 0.995;
+
+    if(MyGame.Player.position.x < -3) {
+        MyGame.Player.position.x = -3;
         MyGame.Player.MoveVector.x = 1.5;
         MyGame.RoadSpeedVector *= 0.5;
         MyGame.Moog({freq: 300,attack: 10,decay: 500,oscilator: 0,vol: 0.2});
     }
-    if(MyGame.Player.position.x > 1.8) {
-        MyGame.Player.position.x = 1.8;
+    if(MyGame.Player.position.x > 3) {
+        MyGame.Player.position.x = 3;
         MyGame.Player.MoveVector.x = -1.5;
         MyGame.RoadSpeedVector *= 0.5;
         MyGame.Moog({freq: 300,attack: 10,decay: 500,oscilator: 0,vol: 0.2});
@@ -157,6 +160,10 @@ MyGame.ApplySteering = (element, deltaTime) => {
     MyGame.Player.position.x += MyGame.Player.MoveVector.x * deltaTime;
     MyGame.Player.position.y += MyGame.Player.MoveVector.y * deltaTime;
 };
+
+MyGame.CameraFollowLoop = (element) => {
+    MyGame.Camera.position.x = element.position.x * .8;
+}
 
 MyGame.MyLoop = () => {
     let deltaTime = MyGame.Clock.getDelta();
@@ -170,8 +177,8 @@ MyGame.MyLoop = () => {
     }
     if(MyGame.Player){
         MyGame.ApplySteering(MyGame.Player, deltaTime);
-        //MyGame.ApplyPhysics(MyGame.Player, deltaTime);
         MyGame.SteeringLoop();
+        MyGame.CameraFollowLoop(MyGame.Player);
     }
 
     MyGame.Road.forEach(road => {
