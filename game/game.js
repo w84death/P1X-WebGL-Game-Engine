@@ -87,17 +87,16 @@ MyGame.InitPlayer = (player) => {
 }
 
 MyGame.MovePlayer = (dir) => {
-    //MyGame.RoadSpeedVector -= dir;
     MyGame.Player.MoveVector.x += dir * -0.2;
 
 }
 
 MyGame.HandleClick = (ev) => {
-    if (ev.y < window.innerHeight * .5) MyGame.RoadSpeedVector -= MyGame.Settings.player.speed.forward;
+    if (ev.y < window.innerHeight * .5 && ev.x > window.innerWidth  * .3 && ev.x < window.innerWidth  * .7) MyGame.RoadSpeedVector -= MyGame.Settings.player.speed.forward;
     else MyGame.RoadSpeedVector += MyGame.Settings.player.speed.forward;
     if( MyGame.RoadSpeedVector < -12){
-        if (ev.x < window.innerWidth  * .5) MyGame.MovePlayer(-1);
-        else MyGame.MovePlayer(1);
+        if (ev.x < window.innerWidth  * .3) MyGame.MovePlayer(-1);
+        if (ev.x > window.innerWidth  * .7) MyGame.MovePlayer(1);
     }
 }
 
@@ -119,11 +118,13 @@ MyGame.MyLoop = () => {
         if(MyGame.Player.position.x < -1.8) {
             MyGame.Player.position.x = -1.8;
             MyGame.Player.MoveVector.x = 1;
+            MyGame.RoadSpeedVector *= 0.5;
             MyGame.Moog({freq: 300,attack: 10,decay: 500,oscilator: 0,vol: 0.2});
         }
         if(MyGame.Player.position.x > 1.8) {
             MyGame.Player.position.x = 1.8;
             MyGame.Player.MoveVector.x = -1;
+            MyGame.RoadSpeedVector *= 0.5;
             MyGame.Moog({freq: 300,attack: 10,decay: 500,oscilator: 0,vol: 0.2});
         }
 
