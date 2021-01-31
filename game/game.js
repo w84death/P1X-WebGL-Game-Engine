@@ -2,20 +2,6 @@ import { GLTFLoader } from './../sse/GLTFLoader.js';
 
 const MyGame = new SSEngine(Settings, GLTFLoader);
 
-MyGame.ApplyPhysics = (element, dt) => {
-    
-    if(element.MoveVector.x > 0)
-        element.MoveVector.x -= MyGame.Settings.physics.gravity.x * dt;
-    if(element.MoveVector.x < 0)
-        element.MoveVector.x += MyGame.Settings.physics.gravity.x * dt;
-
-    if (element.position.y > 0)
-        element.MoveVector.y -= MyGame.Settings.physics.gravity.y * dt;
-    else {
-        element.position.y = 0;
-        element.MoveVector.y = 0;
-    }
-}
 
 MyGame.InitScene = (block) => {
     MyGame.RoadBlock = block;
@@ -88,13 +74,86 @@ MyGame.MovePlayer = (dir) => {
     MyGame.Player.MoveVector.x += dir * -0.2;
 }
 
-MyGame.HandleMouse = (ev) => {
-    if (ev.y < window.innerHeight * .5) MyGame.RoadSpeedVector -= MyGame.Settings.player.speed.forward;
-    if( MyGame.RoadSpeedVector < -12){
-        if (ev.x < window.innerWidth * .5) MyGame.MovePlayer(-1);
-        if (ev.x > window.innerWidth * .5) MyGame.MovePlayer(1);
-    }
+MyGame.Mouse = {
+    x: 0,
+    y: 0
 }
+
+MyGame.SteeringLoop = () => {
+    
+
+    if( MyGame.Mouse.x < MyGame.Player.position.x)
+        MyGame.MovePlayer(-1 * Math.min((MyGame.Player.position.x-MyGame.Mouse.x) * .002, 1));
+        //MyGame.Player.RotateVector.y = 1 * Math.min((MyGame.Player.position.x-mx) * .01, .3);
+        
+    if( MyGame.Mouse.x > MyGame.Player.position.x)
+        MyGame.MovePlayer(1 * Math.min((MyGame.Mouse.x - MyGame.Player.position.x) * .002, 1) ); 
+        //MyGame.Player.RotateVector.y = -1 * Math.min((mx - MyGame.Player.position.x) * .01, .3);
+
+    if(MyGame.Mouse.y < window.innerHeight * .5)
+        MyGame.RoadSpeedVector -= MyGame.Settings.player.speed.forward * Math.min((window.innerHeight * .5 - MyGame.Mouse.y) * .0025, 1);
+}
+
+MyGame.HandleMouse = (ev) => {
+    let mx = ev.x - window.innerWidth * .5;
+    MyGame.Mouse.x = mx;
+    MyGame.Mouse.y = ev.y;
+}
+
+MyGame.ApplyPhysics = (element, dt) => {
+    
+    // if(element.MoveVector.x > 0)
+    //     element.MoveVector.x -= MyGame.Settings.physics.gravity.x * dt;
+    // if(element.MoveVector.x < 0)
+    //     element.MoveVector.x += MyGame.Settings.physics.gravity.x * dt;
+
+    // if (element.position.y > 0)
+    //     element.MoveVector.y -= MyGame.Settings.physics.gravity.y * dt;
+    // else {
+    //     element.position.y = 0;
+    //     element.MoveVector.y = 0;
+    // }
+}
+
+MyGame.ApplySteering = (element, deltaTime) => {
+    let wheels = MyGame.Player.getObjectByName("Wheels");
+    if(wheels) wheels.rotation.x -= MyGame.RoadSpeedVector * .0033;   
+    
+    if(MyGame.RoadSpeedVector > -10.0)
+        MyGame.Player.MoveVector.x *= Math.abs(MyGame.RoadSpeedVector * .1);
+
+    ;
+
+    // MyGame.Player.rotation.x += MyGame.Player.RotateVector.x * deltaTime;
+    MyGame.Player.rotation.y += MyGame.Player.RotateVector.y * deltaTime;
+    // if(MyGame.Player.rotation.y > MyGame.Settings.player.rotation.y)
+    //     MyGame.Player.rotation.y = MyGame.Settings.player.rotation.y;
+    // if(MyGame.Player.rotation.y < -MyGame.Settings.player.rotation.y)
+    //     MyGame.Player.rotation.y = -MyGame.Settings.player.rotation.y;
+
+    // if(MyGame.RoadSpeedVector < -12)
+    //     MyGame.Player.position.x += MyGame.Player.MoveVector.x *  MyGame.Settings.player.speed.side * deltaTime;
+    
+    if(MyGame.Player.position.x < -1.8) {
+        MyGame.Player.position.x = -1.8;
+        MyGame.Player.MoveVector.x = 1;
+        MyGame.RoadSpeedVector *= 0.5;
+        MyGame.Moog({freq: 300,attack: 10,decay: 500,oscilator: 0,vol: 0.2});
+    }
+    if(MyGame.Player.position.x > 1.8) {
+        MyGame.Player.position.x = 1.8;
+        MyGame.Player.MoveVector.x = -1;
+        MyGame.RoadSpeedVector *= 0.5;
+        MyGame.Moog({freq: 300,attack: 10,decay: 500,oscilator: 0,vol: 0.2});
+    }
+
+    // if(MyGame.Player.rotation.y > 0) MyGame.Player.rotation.y -= MyGame.Settings.physics.rotation.x * deltaTime;
+    // if(MyGame.Player.rotation.y < 0) MyGame.Player.rotation.y += MyGame.Settings.physics.rotation.x * deltaTime;
+
+    MyGame.Player.position.x += MyGame.Player.MoveVector.x * deltaTime;
+    MyGame.Player.position.y += MyGame.Player.MoveVector.y * deltaTime;
+   
+};
 
 MyGame.MyLoop = () => {
     let deltaTime = MyGame.Clock.getDelta();
@@ -107,39 +166,9 @@ MyGame.MyLoop = () => {
         MyGame.Player.MoveVector.x = 0;
     }
     if(MyGame.Player){
-        let wheels = MyGame.Player.getObjectByName("Wheels");
-        if(wheels) wheels.rotation.x -= MyGame.RoadSpeedVector * .0033;    
-        MyGame.Player.RotateVector.y = MyGame.Player.MoveVector.x * 0.2;
-        
-        MyGame.Player.rotation.x += MyGame.Player.RotateVector.x * deltaTime;
-        MyGame.Player.rotation.y += MyGame.Player.RotateVector.y * deltaTime;
-        if(MyGame.Player.rotation.y > MyGame.Settings.player.rotation.y)
-            MyGame.Player.rotation.y = MyGame.Settings.player.rotation.y;
-        if(MyGame.Player.rotation.y < -MyGame.Settings.player.rotation.y)
-            MyGame.Player.rotation.y = -MyGame.Settings.player.rotation.y;
-
-        if(MyGame.RoadSpeedVector < -12)
-            MyGame.Player.position.x += MyGame.Player.MoveVector.x *  MyGame.Settings.player.speed.side * deltaTime;
-        
-        if(MyGame.Player.position.x < -1.8) {
-            MyGame.Player.position.x = -1.8;
-            MyGame.Player.MoveVector.x = 1;
-            MyGame.RoadSpeedVector *= 0.5;
-            MyGame.Moog({freq: 300,attack: 10,decay: 500,oscilator: 0,vol: 0.2});
-        }
-        if(MyGame.Player.position.x > 1.8) {
-            MyGame.Player.position.x = 1.8;
-            MyGame.Player.MoveVector.x = -1;
-            MyGame.RoadSpeedVector *= 0.5;
-            MyGame.Moog({freq: 300,attack: 10,decay: 500,oscilator: 0,vol: 0.2});
-        }
-
-        if(MyGame.Player.rotation.y > 0) MyGame.Player.rotation.y -= MyGame.Settings.physics.rotation.x * deltaTime;
-        if(MyGame.Player.rotation.y < 0) MyGame.Player.rotation.y += MyGame.Settings.physics.rotation.x * deltaTime;
-
-        
-        MyGame.Player.position.y += MyGame.Player.MoveVector.y * deltaTime;
+        MyGame.ApplySteering(MyGame.Player, deltaTime);
         MyGame.ApplyPhysics(MyGame.Player, deltaTime);
+        MyGame.SteeringLoop();
     }
 
     MyGame.Road.forEach(road => {
