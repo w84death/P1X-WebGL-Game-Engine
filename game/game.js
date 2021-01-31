@@ -94,14 +94,11 @@ MyGame.MyLoop = () => {
     MyGame.Renderer.render(MyGame.Scene, MyGame.Camera);
 
     if(MyGame.RoadSpeedVector < -MyGame.Settings.road.speed.max) MyGame.RoadSpeedVector = -MyGame.Settings.road.speed.max;
-    //if(MyGame.RoadSpeedVector < 0) MyGame.RoadSpeedVector += 12 * deltaTime;
     if(MyGame.RoadSpeedVector > 0) MyGame.RoadSpeedVector = 0;
-    //if(MyGame.Box.position.y == 0) MyGame.RoadSpeedVector *= .3;
-
-    let wheels = MyGame.Player.getObjectByName("Wheels");
-    if(wheels) wheels.rotation.x -= MyGame.RoadSpeedVector * .0033;
 
     if(MyGame.Player){
+        let wheels = MyGame.Player.getObjectByName("Wheels");
+        if(wheels) wheels.rotation.x -= MyGame.RoadSpeedVector * .0033;    
         
         MyGame.Player.rotation.x += MyGame.Player.RotateVector.x * deltaTime;
         MyGame.Player.rotation.y += MyGame.Player.RotateVector.y * deltaTime;
