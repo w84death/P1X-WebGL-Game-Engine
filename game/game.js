@@ -146,13 +146,13 @@ MyGame.ApplySteering = (element, deltaTime) => {
 
     if(MyGame.Player.position.x < -3) {
         MyGame.Player.position.x = -3;
-        MyGame.Player.MoveVector.x = 1.5;
+        MyGame.Player.MoveVector.x = 1.5 * Math.abs(MyGame.RoadSpeedVector * .01) ;
         MyGame.RoadSpeedVector *= 0.5;
         MyGame.Moog({freq: 300,attack: 10,decay: 500,oscilator: 0,vol: 0.2});
     }
     if(MyGame.Player.position.x > 3) {
         MyGame.Player.position.x = 3;
-        MyGame.Player.MoveVector.x = -1.5;
+        MyGame.Player.MoveVector.x = -1.5 * Math.abs(MyGame.RoadSpeedVector * .01) ;
         MyGame.RoadSpeedVector *= 0.5;
         MyGame.Moog({freq: 300,attack: 10,decay: 500,oscilator: 0,vol: 0.2});
     }
