@@ -210,6 +210,10 @@ MyGame.WelcomeLog = () => {
 
 window.addEventListener('mousemove', MyGame.HandleMouse);
 
+window.addEventListener('click', () => {
+    MyGame.Renderer.domElement.requestFullscreen();
+});
+
 MyGame.InitScenery();
 MyGame.WelcomeLog();
 
@@ -255,4 +259,3 @@ MyGame.Loader.ImportModel({
 }, MyGame.AddScenery);
 
 MyGame.RoadSpeedVector = -10.0;
-

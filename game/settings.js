@@ -4,7 +4,7 @@ const Settings = {
         folder: 'game',
         version: 'pre-alpha0',
         width: 320,
-        height: 480
+        height: 200
     },
     camera: {
         pos: {x:0, y:2.5, z:-2.5 },
@@ -38,7 +38,7 @@ const Settings = {
     road: {
         blocks: 24,
         size: {x:10, y:0, z: 10},
-        speed: {max: 64}
+        speed: {max: 256}
     },
     player: {
         speed: {
