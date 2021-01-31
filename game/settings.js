@@ -5,7 +5,7 @@ const Settings = {
         version: 'pre-alpha0'
     },
     camera: {
-        pos: {x:0, y:2, z:-8 },
+        pos: {x:0, y:2, z:-5 },
         follow: {
             smooth: 0.01, 
             box: { x:1.5, y:2 },
@@ -16,12 +16,12 @@ const Settings = {
         angle: {polar: Math.PI * 0.44}
     },
     environment: {
-        background: 0xaabbff,
+        background: 0xdddbe1,
         fog: { 
             enabled: true, 
-            color: 0xaabbff, 
-            near: 40, 
-            far: 120 },
+            color: 0xdddbe1, 
+            near: 10, 
+            far: 0},
         sun: { color: 0xffffee, power: 1 },
         ambinet: 0x444444,
         sky: { skybox:  '' },
@@ -34,7 +34,7 @@ const Settings = {
         rotation: { x:1, y:1, z:1 }
     },
     road: {
-        blocks: 12,
+        blocks: 24,
         size: {x:10, y:0, z: 10},
         speed: {max: 64}
     },

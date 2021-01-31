@@ -9,8 +9,6 @@ class SSELoader {
             gltf.scene.position.x = options.position.x;
             gltf.scene.position.y = options.position.y;
             gltf.scene.position.z = options.position.z;
-            gltf.scene.castShadow = true;
-            gltf.scene.receiveShadow = true;
             console.log(`ENGINE: Model [${gltf.scene.children[0].name}] imported.`);
             if(callback) callback(gltf.scene);
         }, undefined, function ( error ) {

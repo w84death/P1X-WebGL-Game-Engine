@@ -9,7 +9,7 @@ class SSCamera {
         this.Camera.position.x = settings.camera.pos.x;
         this.Camera.position.y = settings.camera.pos.y;
         this.Camera.position.z = settings.camera.pos.z;
-        this.Camera.lookAt( 0, 0, 0 );
+        this.Camera.lookAt( 0, 1.2, 0 );
         console.log(` * CAMERA: Initialized at [${this.Camera.position.x},${this.Camera.position.y},${this.Camera.position.z}].`);
     
     }

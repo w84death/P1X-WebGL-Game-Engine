@@ -1,7 +1,6 @@
 # P1X-WebGL-Game-Engine
 
-![Screenshot](p1x-webgl-game-engine-alpha0.png)
-![Screenshot](p1x-webgl-game-engine-alpha0b.png)
+![Screenshot](sample-game.png)
 
 Powered by [tree.js](https://threejs.org/).
 

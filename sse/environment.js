@@ -13,9 +13,11 @@ class SSEnvironment {
     }
 
     AddFog(settings, scene) {
+
         scene.fog = new THREE.Fog( 
             settings.environment.fog.color, 
             settings.environment.fog.near, 
-            settings.environment.fog.far );
+            settings.road.blocks * (settings.road.size.z - 1));
+        
     }
 }

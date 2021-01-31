@@ -21,7 +21,7 @@ class SSLights {
         light.position.set( -1, 1.75, 1 );
         light.position.multiplyScalar( 100 );
 
-        light.castShadow = true;
+        light.castShadow = false;
         light.shadow.mapSize.width = 256;
         light.shadow.mapSize.height = 256;
         light.shadow.camera.near = .1;
