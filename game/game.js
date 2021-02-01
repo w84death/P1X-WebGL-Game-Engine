@@ -21,7 +21,8 @@ MyGame.InitScenery = () => {
 MyGame.PostAddScenery = () => {
     if(MyGame.SceneryBlock.length == MyGame.SceneryBlocksToLoad){
         MyGame.Scenery.forEach(block => {
-            MyGame.Scene.add(block);
+            if(!block.empty)
+                MyGame.Scene.add(block);
         });
     }
     console.log(`GAME: Scenery post-add run.`);
@@ -33,8 +34,15 @@ MyGame.AddScenery = (block, rate) => {
         if(Math.random() < rate){
             let block = MyGame.SceneryBlock[MyGame.SceneryBlock.length-1].clone();
             block.position.z = i * MyGame.Settings.road.size.z;
-            MyGame.Scenery  .push(block);
-        }        
+            MyGame.Scenery.push(block);
+        }else{
+            MyGame.Scenery.push({
+                empty:true, 
+                position: { 
+                    z: i * MyGame.Settings.road.size.z
+                }
+            });
+        }
     }
     
     console.log(`GAME: Added scenery model.`);
@@ -78,24 +86,6 @@ MyGame.Mouse = {
     y: 0
 }
 
-MyGame.SteeringLoop = () => {
-    let dist = 0;
-    if(MyGame.Mouse.x > MyGame.Player.position.x ){
-        dist = MyGame.Mouse.x - MyGame.Player.position.x;
-        MyGame.MovePlayer(-1 * Math.min(dist * .1, 1));
-        MyGame.Player.RotateVector.y = Math.min(dist * .5, .3);
-    }
-        
-    if( MyGame.Mouse.x < MyGame.Player.position.x){
-        dist = MyGame.Player.position.x - MyGame.Mouse.x
-        MyGame.MovePlayer(1 * Math.min(dist * .1, 1) ); 
-        MyGame.Player.RotateVector.y = -Math.min(dist * .5, .3);
-    }
-
-    if(MyGame.Mouse.y > 0)
-        MyGame.RoadSpeedVector -= MyGame.Settings.player.speed.forward * (MyGame.Mouse.y - .5);
-}
-
 MyGame.HandleMouse = (ev) => {
     var vec = new THREE.Vector3();
     var pos = new THREE.Vector3();
@@ -115,6 +105,24 @@ MyGame.HandleMouse = (ev) => {
 
     MyGame.Mouse.x = pos.x;
     MyGame.Mouse.y = pos.y;
+}
+
+MyGame.SteeringLoop = () => {
+    let dist = 0;
+    if(MyGame.Mouse.x > MyGame.Player.position.x ){
+        dist = MyGame.Mouse.x - MyGame.Player.position.x;
+        MyGame.MovePlayer(-1 * Math.min(dist * .1, 1));
+        MyGame.Player.RotateVector.y = Math.min(dist * .5, .3);
+    }
+        
+    if( MyGame.Mouse.x < MyGame.Player.position.x){
+        dist = MyGame.Player.position.x - MyGame.Mouse.x
+        MyGame.MovePlayer(1 * Math.min(dist * .1, 1) ); 
+        MyGame.Player.RotateVector.y = -Math.min(dist * .5, .3);
+    }
+
+    if(MyGame.Mouse.y > 0)
+        MyGame.RoadSpeedVector -= MyGame.Settings.player.speed.forward * (MyGame.Mouse.y - .5);
 }
 
 MyGame.ApplyPhysics = (element, dt) => {
@@ -187,13 +195,39 @@ MyGame.MyLoop = () => {
         }
     });
 
+    MyGame.GetRandomSceneryBlock = () => {
+        return MyGame.SceneryBlock[Math.floor(Math.random() * MyGame.SceneryBlock.length)].clone();
+    }
+
+    MyGame.AddRandomScenery = (pos) => {
+        let block = MyGame.GetRandomSceneryBlock()
+        block.position.z = pos + MyGame.Settings.road.size.z * (MyGame.Settings.road.blocks - 1)
+        MyGame.Scenery.push(block);
+        MyGame.Scene.add(block);
+    }
+
+    
     MyGame.Scenery.forEach(element => {
         element.position.z += MyGame.RoadSpeedVector * deltaTime;
+
         if(element.position.z < -MyGame.Settings.road.size.z){
-            element.position.z += MyGame.Settings.road.size.z * (MyGame.Settings.road.blocks - 1);
+            element.position.z += MyGame.Settings.road.size.z * (MyGame.Settings.road.blocks - 1)
+            
+            if(Math.random() < .25){
+                MyGame.AddRandomScenery(element.position.z);
+            }else
+                MyGame.Scenery.push({
+                    empty:true, 
+                    position: { 
+                        z:  element.position.z
+                    }
+                });
+        
+            MyGame.Scene.remove(element);
+            MyGame.Scenery = MyGame.Scenery.filter(item => item !== element);
         }
     });
-
+    
     document.title = `FPS: ${Math.round(1/deltaTime)}, dt: ${Math.round(deltaTime*10000)/10000}ms | ${Settings.game.title}`;
     requestAnimationFrame( MyGame.MyLoop );
 }

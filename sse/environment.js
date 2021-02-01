@@ -22,6 +22,5 @@ class SSEnvironment {
         scene.fog = new THREE.FogExp2( 
             settings.environment.fog.color, 
             0.015);
-        
     }
 }

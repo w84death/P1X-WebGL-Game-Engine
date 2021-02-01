@@ -32,7 +32,7 @@ const Settings = {
         }
     },
     physics: {
-        gravity: { x:.1, y:9.8, z:1},
+        gravity: { x:.5, y:9.8, z:1},
         rotation: { x:1, y:5.5, z:1 }
     },
     road: {
@@ -44,7 +44,7 @@ const Settings = {
         speed: {
             forward: .5,
             side: 6,
-            backward: 0.8,
+            backward: 1.0,
             rotation: 2.0,
             jump: 1.2
         },
