@@ -3,8 +3,8 @@ const Settings = {
         title: 'Simple Game for Simple Engine',
         folder: 'game',
         version: 'pre-alpha0',
-        width: 320,
-        height: 200
+        width: 640,
+        height: 480
     },
     camera: {
         pos: {x:0, y:2.5, z:-2.5 },
