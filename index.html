@@ -1,23 +1,22 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang=en>
 <head>
-	<meta charset="utf-8">
-  <title>P1X WebGL Game Engine</title>
-	<link rel="stylesheet" href="./theme.css" type="text/css">
-	<link rel="icon" href="./favicon.png" />
+    <meta charset=UTF-8>
+    <meta name=viewport content="width=device-width, initial-scale=1.0">
+    <title>Super Small Engine: Sample Game</title>
+    <link rel=stylesheet href=./style.css>
+    <link rel="icon" href="./favicon.ico" />
 </head>
 <body>
-	<main id="container" tabindex="-1">
-		<fieldset class="svga">
-			<legend><h1 id="gameTitle">Game Name</h1> Version <span id="gameVersion">0</span></legend>
-			<div id="game"></div>
-		</fieldset>
-		<footer><small id="fps">FPS: 000</small></footer>
-	</main>
-
-	<script src="./engine/libs/three.js"></script>
-	<script src="./engine/libs/KeyboardState.js"></script>
-	<script type="module" src="./game/game.js"></script>
+    <script src=./sse/three.js></script>
+    <script src=./sse/renderer.js></script>
+    <script src=./sse/camera.js></script>
+    <script src=./sse/environment.js></script>
+    <script src=./sse/lights.js></script>
+    <script src=./sse/moog.js></script>
+    <script src=./sse/sse.js></script>
+    <script src=./sse/loader.js></script>
+    <script src=./game/settings.js></script>
+    <script type=module src=./game/game.js></script>
 </body>
-</html> 
-
+</html>

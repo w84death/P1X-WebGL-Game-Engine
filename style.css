@@ -1,0 +1,14 @@
+body { 
+    margin: 0; 
+    height: 100vh;
+    background-color: black;
+    overflow: hidden;
+}
+  
+canvas { 
+    display: block;
+    touch-action: none;
+    width: auto !important;
+    height: 100% !important;
+    margin:0 auto;
+}
