@@ -211,7 +211,7 @@ MyGame.WelcomeLog = () => {
 window.addEventListener('mousemove', MyGame.HandleMouse);
 
 window.addEventListener('click', () => {
-    document.body.domElement.requestFullscreen();
+    document.body.requestFullscreen();
 });
 
 MyGame.InitScenery();
